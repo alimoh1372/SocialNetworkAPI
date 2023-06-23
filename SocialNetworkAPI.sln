@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "00_Framework", "00_Framwork\00_Framework.csproj", "{4612F7AE-232B-427B-824D-2CB0D4572D71}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SocialNetworkApi", "SocialNetworkApi", "{EEC6239A-A929-4C49-A19F-FD9A8E4038A6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SNA.Domain", "SNA.Domain", "{6C473746-24B9-418E-A36B-98163762F663}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialNetworkApi.Domain", "SocialNetworkApi\SNA.Domain\SocialNetworkApi.Domain\SocialNetworkApi.Domain.csproj", "{5691AE3A-BAA4-4F2B-80A7-D4A80B128971}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{9BC7DB66-D647-45CA-8DCA-902D1B46CB64}"
+	ProjectSection(SolutionItems) = preProject
+		Documentation\Document V6.docx = Documentation\Document V6.docx
+		Documentation\Documentation Excell.xlsx = Documentation\Documentation Excell.xlsx
+		Documentation\Timing work.xlsx = Documentation\Timing work.xlsx
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4612F7AE-232B-427B-824D-2CB0D4572D71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4612F7AE-232B-427B-824D-2CB0D4572D71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4612F7AE-232B-427B-824D-2CB0D4572D71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4612F7AE-232B-427B-824D-2CB0D4572D71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5691AE3A-BAA4-4F2B-80A7-D4A80B128971}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5691AE3A-BAA4-4F2B-80A7-D4A80B128971}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5691AE3A-BAA4-4F2B-80A7-D4A80B128971}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5691AE3A-BAA4-4F2B-80A7-D4A80B128971}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6C473746-24B9-418E-A36B-98163762F663} = {EEC6239A-A929-4C49-A19F-FD9A8E4038A6}
+		{5691AE3A-BAA4-4F2B-80A7-D4A80B128971} = {6C473746-24B9-418E-A36B-98163762F663}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BC31ADF8-B0D5-4D8B-9ED1-4F1939D7B26A}
+	EndGlobalSection
+EndGlobal
