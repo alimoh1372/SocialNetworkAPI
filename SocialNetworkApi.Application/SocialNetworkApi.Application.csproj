@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SocialNetworkApi\SNA.Application\SocialNetworkApi.Application.Contracts\SocialNetworkApi.Application.Contracts.csproj" />
     <ProjectReference Include="..\SocialNetworkApi\SNA.Domain\SocialNetworkApi.Domain\SocialNetworkApi.Domain.csproj" />
+    <ProjectReference Include="..\SocialNetworkApi\SNA.Infrastructure\SocialNetworkApi.Infrastructure.Efcore\SocialNetworkApi.Infrastructure.EfCore.csproj" />
   </ItemGroup>
 
 </Project>

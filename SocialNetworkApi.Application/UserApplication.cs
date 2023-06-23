@@ -1,19 +1,22 @@
 ﻿using _00_Framework.Application;
+using _00_Framework.Domain;
+using Microsoft.EntityFrameworkCore;
 using SocialNetworkApi.Application.Contracts.UserContracts;
+using SocialNetworkApi.Domain.UserAgg;
+using SocialNetworkApi.Infrastructure.EfCore;
 
 namespace SocialNetworkApi.Application;
 
 public class UserApplication : IUserApplication
 {
-    private readonly IUserRepository _userRepository;
+    private readonly SocialNetworkApiContext _context;
     private readonly IPasswordHasher _passwordHasher;
-    private readonly IAuthHelper _authHelper;
+
     private readonly IFileUpload _fileUpload;
-    public UserApplication(IUserRepository userRepository, IPasswordHasher passwordHasher, IAuthHelper authHelper, IFileUpload fileUpload)
+    public UserApplication(SocialNetworkApiContext context, IPasswordHasher passwordHasher, IFileUpload fileUpload)
     {
-        _userRepository = userRepository;
+
         _passwordHasher = passwordHasher;
-        _authHelper = authHelper;
         _fileUpload = fileUpload;
     }
 
@@ -21,16 +24,17 @@ public class UserApplication : IUserApplication
     {
         var operation = new OperationResult();
 
-        if (_userRepository.IsExists(x => x.Email == command.Email))
+        if (!_context.Users.Any(x => x.Email == command.Email))
             return operation.Failed(ApplicationMessage.Duplication);
+
         //encrypt the password of user to save on database
         var password = _passwordHasher.Hash(command.Password);
         var account = new User(command.Name, command.LastName, command.Email, command.BirthDay, password,
             command.AboutMe, "/Images/DefaultProfile.png");
 
         //add to database
-        _userRepository.Create(account);
-        _userRepository.SaveChanges();
+        _context.Add(account);
+        _context.SaveChanges();
         return operation.Succedded();
     }
 
@@ -43,38 +47,60 @@ public class UserApplication : IUserApplication
     public OperationResult ChangePassword(ChangePassword command)
     {
         var operation = new OperationResult();
-        var user = _userRepository.Get(command.Id);
-        if (user == null)
+        var user = _context.Users.FirstOrDefaultAsync(x => x.Id == command.Id);
+        if (user.Result == null)
             return operation.Failed(ApplicationMessage.NotFound);
 
         if (command.Password != command.ConfirmPassword)
             return operation.Failed(ApplicationMessage.PasswordsNotMatch);
 
         var password = _passwordHasher.Hash(command.Password);
-        user.ChangePassword(password);
-        _userRepository.SaveChanges();
+        user.Result.ChangePassword(password);
+        _context.SaveChanges();
         return operation.Succedded();
     }
 
-    public EditUser GetDetails(long id)
+    public EditUser? GetDetails(long id)
     {
-        return _userRepository.GetDetails(id);
+        return _context.Users.Select(x => new EditUser
+        {
+            Id = x.Id,
+            Name = x.Name,
+            LastName = x.LastName,
+            AboutMe = x.AboutMe,
+            ProfilePicture = x.ProfilePicture
+        }).FirstOrDefault(x => x.Id == id);
+
     }
 
-    public async Task<EditProfilePicture> GetEditProfileDetails(long id)
+    public async Task<EditProfilePicture?> GetEditProfileDetails(long id)
     {
-        return await _userRepository.GetAsyncEditProfilePicture(id);
+        return await _context.Users.Select(x => new EditProfilePicture
+        {
+            Id = x.Id,
+            PreviousProfilePicture = x.ProfilePicture
+        })
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public Task<List<UserViewModel>> SearchAsync(SearchModel searchModel)
     {
-        return _userRepository.SearchAsync(searchModel);
+        var query = _context.Users.Select(x => new UserViewModel
+        {
+            Id = x.Id,
+            Email = x.Email,
+            ProfilePicture = x.ProfilePicture
+        });
+        if (!string.IsNullOrWhiteSpace(searchModel.Email))
+            query = query.Where(x => x.Email == searchModel.Email);
+
+        return query.ToListAsync();
     }
 
     public async Task<OperationResult> ChangeProfilePicture(EditProfilePicture command)
     {
         var operationResult = new OperationResult();
-        var user = _userRepository.Get(command.Id);
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == command.Id);
         //Check user is exist
         if (user == null)
             return await Task.FromResult(operationResult.Failed(ApplicationMessage.NotFound));
@@ -87,43 +113,48 @@ public class UserApplication : IUserApplication
         if (previousPictureAddress != "/Images/DefaultProfile.png")
             _fileUpload.DeleteFile(previousPictureAddress);
         user.EditProfilePicture(newPicturePath);
-        _userRepository.SaveChanges();
+        await _context.SaveChangesAsync();
         return operationResult.Succedded();
     }
 
-    public OperationResult Login(Login command)
+    public async Task<string> Login(Login command)
     {
 
         var operation = new OperationResult();
-        var user = _userRepository.GetBy(command.UserName);
+        var user =await _context.Users.FirstOrDefaultAsync(x => x.Email == command.UserName);
         if (user == null)
-            return operation.Failed(ApplicationMessage.WrongUserPass);
+            return "";
         //Compare the inserted password and the saved password
         var result = _passwordHasher.Check(user.Password, command.Password);
         //if password wrong the operation failed
         if (!result.Verified)
-            return operation.Failed(ApplicationMessage.WrongUserPass);
+            return "";
 
 
         //Adding the identity items to the cookie of client
         var authViewModel = new AuthViewModel(user.Id, user.Email);
 
-        _authHelper.Signin(authViewModel);
+        //ToDo:Creating token and return it
 
-        return operation.Succedded();
+        return "";
     }
 
-    public void Logout()
-    {
-        _authHelper.SignOut();
-    }
+
     /// <summary>
     /// Get the information of user
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public Task<UserViewModel> GetUserInfoAsyncBy(long id)
+    public Task<UserViewModel?> GetUserInfoAsyncBy(long id)
     {
-        return _userRepository.GetUserInfoAsyncBy(id);
+        return _context.Users.Select(x=>new UserViewModel
+        {
+            Id = x.Id,
+            Email = x.Email,
+            ProfilePicture = x.ProfilePicture,
+            Name = x.Name,
+            LastName = x.LastName,
+            AboutMe = x.AboutMe
+        }).FirstOrDefaultAsync(x=>x.Id==id);
     }
 }

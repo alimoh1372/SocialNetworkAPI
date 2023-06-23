@@ -1,18 +1,22 @@
 ﻿using _00_Framework.Application;
+using Microsoft.EntityFrameworkCore;
 using SocialNetworkApi.Application.Contracts.MessageContracts;
+using SocialNetworkApi.Domain.MessageAgg;
+using SocialNetworkApi.Infrastructure.EfCore;
 
 namespace SocialNetworkApi.Application;
 
 /// <summary>
-/// 
+/// Do the messaging operations
 /// </summary>
 public class MessageApplication : IMessageApplication
 {
-    private readonly IMessageRepository _messageRepository;
+    private readonly SocialNetworkApiContext _context;
 
-    public MessageApplication(IMessageRepository messageRepository)
+
+    public MessageApplication(SocialNetworkApiContext context)
     {
-        _messageRepository = messageRepository;
+        _context = context;
     }
 
     public OperationResult Send(SendMessage command)
@@ -26,11 +30,11 @@ public class MessageApplication : IMessageApplication
         Message message = new Message(command.FkFromUserId, command.FkToUserId, command.MessageContent);
 
         //Add to database
-        _messageRepository.Create(message);
+        _context.Messages.Add(message);
 
 
-        _messageRepository.SaveChanges();
-        //Todo:Send a notify to reciver person or reload that page if he is online
+        _context.SaveChanges();
+        //Todo:Send a notify to receiver person or reload that page if he is online
 
         return result.Succedded();
 
@@ -39,15 +43,14 @@ public class MessageApplication : IMessageApplication
     public OperationResult Edit(EditMessage command)
     {
         var operationResult = new OperationResult();
-        var message = _messageRepository.Get(command.Id);
+        var message = _context.Messages.FirstOrDefault(x=>x.Id==command.Id);
         if (message == null)
             return operationResult.Failed(ApplicationMessage.NotFound);
         if (message.CreationDate.AddMinutes(+3) < DateTime.Now)
             return operationResult.Failed(ApplicationMessage.EditTimeOver);
         message.Edit(command.MessageContent);
-        _messageRepository.SaveChanges();
+        _context.SaveChanges();
         return operationResult.Succedded();
-
     }
 
     public OperationResult Like(long id)
@@ -68,22 +71,77 @@ public class MessageApplication : IMessageApplication
     public async Task<List<MessageViewModel>> LoadChatHistory(long idUserA, long idUserB)
     {
 
-        return await _messageRepository.LoadChatHistory(idUserA, idUserB);
+        return await _context.Messages
+            .Include(x => x.FromUser)
+            .Include(x => x.ToUser)
+            .Select(x => new MessageViewModel
+            {
+                Id = x.Id,
+                CreationDate = x.CreationDate,
+                FkFromUserId = x.FkFromUserId,
+                SenderFullName = x.FromUser.Name + " " + x.FromUser.LastName,
+                FromUserProfilePicture = x.FromUser.ProfilePicture,
+                FkToUserId = x.FkToUserId,
+                ReceiverFullName = x.ToUser.Name + " " + x.ToUser.LastName,
+                ToUserProfilePicture = x.ToUser.ProfilePicture,
+                MessageContent = x.MessageContent
+            })
+            .Where(x => (x.FkFromUserId == idUserA && x.FkToUserId == idUserB)
+                        || (x.FkFromUserId == idUserB && x.FkToUserId == idUserA))
+            .ToListAsync();
 
     }
 
-    public async Task<MessageViewModel> GetLatestMessage(long fromUserId, long toUserId)
+    public async Task<MessageViewModel?> GetLatestMessage(long fromUserId, long toUserId)
     {
-        return await _messageRepository.GetLatestMessageBy(fromUserId, toUserId);
+        return await _context.Messages
+            .Include(x => x.FromUser)
+            .Include(x => x.ToUser)
+            .Select(x => new MessageViewModel
+            {
+                Id = x.Id,
+                CreationDate = x.CreationDate,
+                FkFromUserId = x.FkFromUserId,
+                SenderFullName = x.FromUser.Name + " " + x.FromUser.LastName,
+                FromUserProfilePicture = x.FromUser.ProfilePicture,
+                FkToUserId = x.FkToUserId,
+                ReceiverFullName = x.ToUser.Name + " " + x.ToUser.LastName,
+                ToUserProfilePicture = x.ToUser.ProfilePicture,
+                MessageContent = x.MessageContent
+            }).
+            OrderBy(x => x.Id).
+            LastOrDefaultAsync(x => x.FkFromUserId == fromUserId && x.FkToUserId == toUserId);
     }
 
-    public async Task<EditMessage> GetEditMessageBy(long id)
+    public async Task<EditMessage?> GetEditMessageBy(long id)
     {
-        return await _messageRepository.GetEditMessage(id);
+        return await _context.Messages.Select(x => new EditMessage
+            {
+                Id = x.Id,
+                FkFromUserId = x.FkFromUserId,
+                FkToUserId = x.FkToUserId,
+                MessageContent = x.MessageContent
+            })
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public async Task<MessageViewModel> GetMessageViewModelBy(long id)
+    public async Task<MessageViewModel?> GetMessageViewModelBy(long id)
     {
-        return await _messageRepository.GetMessageViewModeGetViewModelBy(id);
+        return await _context.Messages
+            .Include(x => x.FromUser)
+            .Include(x => x.ToUser)
+            .Select(x => new MessageViewModel
+            {
+                Id = x.Id,
+                CreationDate = x.CreationDate,
+                FkFromUserId = x.FkFromUserId,
+                SenderFullName = x.FromUser.Name + " " + x.FromUser.LastName,
+                FromUserProfilePicture = x.FromUser.ProfilePicture,
+                FkToUserId = x.FkToUserId,
+                ReceiverFullName = x.ToUser.Name + " " + x.ToUser.LastName,
+                ToUserProfilePicture = x.ToUser.ProfilePicture,
+                MessageContent = x.MessageContent
+            })
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 }

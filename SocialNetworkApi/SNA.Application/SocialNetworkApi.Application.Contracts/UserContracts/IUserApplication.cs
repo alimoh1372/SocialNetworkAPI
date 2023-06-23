@@ -12,14 +12,14 @@ public interface IUserApplication
     OperationResult Edit(EditUser command);
 
     OperationResult ChangePassword(ChangePassword command);
-    EditUser GetDetails(long id);
+    EditUser? GetDetails(long id);
 
     /// <summary>
     /// Get The information of user to edit profile picture
     /// </summary>
     /// <param name="id">user id</param>
     /// <returns></returns>
-    Task<EditProfilePicture> GetEditProfileDetails(long id);
+    Task<EditProfilePicture?> GetEditProfileDetails(long id);
 
     /// <summary>
     /// Filter users with the <paramref name="searchModel"/>
@@ -29,12 +29,13 @@ public interface IUserApplication
     Task<List<UserViewModel>> SearchAsync(SearchModel searchModel);
     Task<OperationResult> ChangeProfilePicture(EditProfilePicture command);
 
-    OperationResult Login(Login command);
+    Task<string> Login(Login command);
     void Logout();
+
     /// <summary>
     /// Get the user info by id of user
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    Task<UserViewModel> GetUserInfoAsyncBy(long id);
+    Task<UserViewModel?> GetUserInfoAsyncBy(long id);
 }
