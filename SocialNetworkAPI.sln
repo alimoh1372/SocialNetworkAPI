@@ -16,17 +16,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentat
 		Documentation\Timing work.xlsx = Documentation\Timing work.xlsx
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "00_Framework", "00_Framework\00_Framework.csproj", "{638250B1-1C00-499E-9286-DE1D0B58EA7E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "00_Framework", "00_Framework\00_Framework.csproj", "{638250B1-1C00-499E-9286-DE1D0B58EA7E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SNA.Application", "SNA.Application", "{EB121636-DBA8-45C0-B7F1-0A31703FDDBA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialNetworkApi.Application.Contracts", "SocialNetworkApi\SNA.Application\SocialNetworkApi.Application.Contracts\SocialNetworkApi.Application.Contracts.csproj", "{444FB1DF-1111-48A1-B149-60AF3E375363}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialNetworkApi.Application", "SocialNetworkApi.Application\SocialNetworkApi.Application.csproj", "{B1B997CB-368D-4157-A3DB-92BAB26E8A6D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialNetworkApi.Application.Contracts", "SocialNetworkApi\SNA.Application\SocialNetworkApi.Application.Contracts\SocialNetworkApi.Application.Contracts.csproj", "{444FB1DF-1111-48A1-B149-60AF3E375363}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SNA.Infrastructure", "SNA.Infrastructure", "{F6284430-4B80-464B-B3B1-902C03970FC8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialNetworkApi.Infrastructure.EfCore", "SocialNetworkApi\SNA.Infrastructure\SocialNetworkApi.Infrastructure.Efcore\SocialNetworkApi.Infrastructure.EfCore.csproj", "{EDAEF222-34C2-4E51-86D0-DF466570765C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialNetworkApi.Infrastructure.EfCore", "SocialNetworkApi\SNA.Infrastructure\SocialNetworkApi.Infrastructure.Efcore\SocialNetworkApi.Infrastructure.EfCore.csproj", "{EDAEF222-34C2-4E51-86D0-DF466570765C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialNetworkApi.Application", "SocialNetworkApi\SNA.Application\SocialNetworkApi.Application\SocialNetworkApi.Application.csproj", "{189D8D3A-0E5D-4014-8A4A-2AAEA675AB3D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialNetworkApi.Infrastructure.Bootstrapper", "SocialNetworkApi\SNA.Infrastructure\SocialNetworkApi.Infrastructure.Bootstrapper\SocialNetworkApi.Infrastructure.Bootstrapper.csproj", "{14A54BED-757D-4A8A-9FC3-C168439E6741}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SNA.Presentation", "SNA.Presentation", "{35477BFA-A2B0-4D2B-AB63-D0D1C2A8D649}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialNetworkApi.Presentation.WebApi", "SocialNetworkApi\SNA.Presentation\SocialNetworkApi.Presentation.WebApi\SocialNetworkApi.Presentation.WebApi.csproj", "{2F5C9456-4679-4103-9CEE-0EC1380C94AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,14 +52,22 @@ Global
 		{444FB1DF-1111-48A1-B149-60AF3E375363}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{444FB1DF-1111-48A1-B149-60AF3E375363}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{444FB1DF-1111-48A1-B149-60AF3E375363}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B1B997CB-368D-4157-A3DB-92BAB26E8A6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B1B997CB-368D-4157-A3DB-92BAB26E8A6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B1B997CB-368D-4157-A3DB-92BAB26E8A6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B1B997CB-368D-4157-A3DB-92BAB26E8A6D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EDAEF222-34C2-4E51-86D0-DF466570765C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EDAEF222-34C2-4E51-86D0-DF466570765C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDAEF222-34C2-4E51-86D0-DF466570765C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDAEF222-34C2-4E51-86D0-DF466570765C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{189D8D3A-0E5D-4014-8A4A-2AAEA675AB3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{189D8D3A-0E5D-4014-8A4A-2AAEA675AB3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{189D8D3A-0E5D-4014-8A4A-2AAEA675AB3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{189D8D3A-0E5D-4014-8A4A-2AAEA675AB3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14A54BED-757D-4A8A-9FC3-C168439E6741}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14A54BED-757D-4A8A-9FC3-C168439E6741}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14A54BED-757D-4A8A-9FC3-C168439E6741}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14A54BED-757D-4A8A-9FC3-C168439E6741}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F5C9456-4679-4103-9CEE-0EC1380C94AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F5C9456-4679-4103-9CEE-0EC1380C94AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F5C9456-4679-4103-9CEE-0EC1380C94AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F5C9456-4679-4103-9CEE-0EC1380C94AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -63,9 +77,12 @@ Global
 		{5691AE3A-BAA4-4F2B-80A7-D4A80B128971} = {6C473746-24B9-418E-A36B-98163762F663}
 		{EB121636-DBA8-45C0-B7F1-0A31703FDDBA} = {EEC6239A-A929-4C49-A19F-FD9A8E4038A6}
 		{444FB1DF-1111-48A1-B149-60AF3E375363} = {EB121636-DBA8-45C0-B7F1-0A31703FDDBA}
-		{B1B997CB-368D-4157-A3DB-92BAB26E8A6D} = {EB121636-DBA8-45C0-B7F1-0A31703FDDBA}
 		{F6284430-4B80-464B-B3B1-902C03970FC8} = {EEC6239A-A929-4C49-A19F-FD9A8E4038A6}
 		{EDAEF222-34C2-4E51-86D0-DF466570765C} = {F6284430-4B80-464B-B3B1-902C03970FC8}
+		{189D8D3A-0E5D-4014-8A4A-2AAEA675AB3D} = {EB121636-DBA8-45C0-B7F1-0A31703FDDBA}
+		{14A54BED-757D-4A8A-9FC3-C168439E6741} = {F6284430-4B80-464B-B3B1-902C03970FC8}
+		{35477BFA-A2B0-4D2B-AB63-D0D1C2A8D649} = {EEC6239A-A929-4C49-A19F-FD9A8E4038A6}
+		{2F5C9456-4679-4103-9CEE-0EC1380C94AB} = {35477BFA-A2B0-4D2B-AB63-D0D1C2A8D649}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BC31ADF8-B0D5-4D8B-9ED1-4F1939D7B26A}

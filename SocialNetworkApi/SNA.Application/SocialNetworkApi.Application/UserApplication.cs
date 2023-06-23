@@ -139,6 +139,11 @@ public class UserApplication : IUserApplication
         return "";
     }
 
+    public void Logout()
+    {
+        throw new NotImplementedException();
+    }
+
 
     /// <summary>
     /// Get the information of user
