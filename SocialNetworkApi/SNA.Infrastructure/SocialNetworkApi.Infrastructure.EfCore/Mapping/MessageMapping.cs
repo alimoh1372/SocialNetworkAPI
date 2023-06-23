@@ -4,8 +4,8 @@ using SocialNetworkApi.Domain.MessageAgg;
 
 namespace SocialNetworkApi.Infrastructure.EfCore.Mapping;
 
-[EntityTypeConfiguration(typeof(Message))]
-public class MessageMapping 
+
+public class MessageMapping :IEntityTypeConfiguration<Message>
 {
     public void Configure(EntityTypeBuilder<Message> builder)
     {

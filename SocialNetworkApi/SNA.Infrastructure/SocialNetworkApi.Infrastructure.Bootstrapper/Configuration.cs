@@ -31,4 +31,9 @@ public class Configuration
         //services.AddDbContext<SocialNetworkApiContext>(x =>
         //    x.UseInMemoryDatabase("SocialNetworkApiDb"));
     }
+
+    public static void Configure(IServiceCollection builderServices)
+    {
+        builderServices.AddDbContext<SocialNetworkApiContext>();
+    }
 }

@@ -4,8 +4,8 @@ using SocialNetworkApi.Domain.UserRelationAgg;
 
 namespace SocialNetworkApi.Infrastructure.EfCore.Mapping;
 
-[EntityTypeConfiguration(typeof(UserRelation))]
-public class UserRelationMapping 
+
+public class UserRelationMapping :IEntityTypeConfiguration<UserRelation>
 {
     public void Configure(EntityTypeBuilder<UserRelation> builder)
     {

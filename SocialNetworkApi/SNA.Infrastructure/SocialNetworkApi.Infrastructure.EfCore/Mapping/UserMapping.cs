@@ -5,8 +5,8 @@ using SocialNetworkApi.Domain.UserAgg;
 namespace SocialNetworkApi.Infrastructure.EfCore.Mapping;
 
 
-[EntityTypeConfiguration(typeof(User))]
-public class UserMapping 
+
+public class UserMapping :IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
