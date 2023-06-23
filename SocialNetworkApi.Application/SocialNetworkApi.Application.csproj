@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SocialNetworkApi\SNA.Application\SocialNetworkApi.Application.Contracts\SocialNetworkApi.Application.Contracts.csproj" />
+    <ProjectReference Include="..\SocialNetworkApi\SNA.Domain\SocialNetworkApi.Domain\SocialNetworkApi.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
