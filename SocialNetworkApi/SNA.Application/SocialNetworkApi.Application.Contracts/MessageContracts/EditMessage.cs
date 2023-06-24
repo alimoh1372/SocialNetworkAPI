@@ -8,8 +8,11 @@ namespace SocialNetworkApi.Application.Contracts.MessageContracts;
 /// </summary>
 public class EditMessage
 {
+    [Required]
     public long Id { get; set; }
+    
     public long FkFromUserId { get; set; }
+
     public long FkToUserId { get; set; }
     [DisplayName("Message text")]
     [Required]

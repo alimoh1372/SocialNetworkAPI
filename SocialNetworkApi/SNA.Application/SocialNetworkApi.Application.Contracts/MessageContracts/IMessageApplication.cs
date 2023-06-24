@@ -7,7 +7,7 @@ public interface IMessageApplication
     /// <summary>
     /// Send A message From UserA To UserB
     /// </summary>
-    /// <param name="command"></param>
+    /// <param name="command">Required value to send message</param>
     /// <returns></returns>
     OperationResult Send(SendMessage command);
 

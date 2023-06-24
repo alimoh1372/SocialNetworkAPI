@@ -8,9 +8,10 @@ public interface IUserRelationApplication
 
 
     /// <summary>
-    /// accept the relationship request user A
+    /// Current user  accept the relationship  request From other user
+    /// using the <code>UserRelation</code> <paramref name="id"/>
     /// </summary>
-    /// <param name="id">id of request</param>
+    /// <param name="id">id of request or <code>UserRelation</code> Entity</param>
     /// <returns></returns>
     OperationResult Accept(long id);
 
@@ -25,7 +26,7 @@ public interface IUserRelationApplication
     Task<List<UserWithRequestStatusVieModel>> GetAllUserWithRequestStatus(long currentUserId);
 
     /// <summary>
-    /// Accept the relation in application of user that request sent to it
+    /// Accept the relation by current user=<paramref name="userIdRequestSentFromIt"/> that request sent to it
     /// Just the user that request sent to it can accept
     /// </summary>
     /// <param name="userIdRequestSentFromIt">User id that requested relationship</param>
