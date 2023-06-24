@@ -8,6 +8,7 @@ namespace SocialNetworkApi.Application.Contracts.UserContracts;
 /// </summary>
 public class ChangePassword
 {
+    [Required]
     public long Id { get; set; }
 
     [Required]
