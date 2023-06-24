@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Text.Unicode;
 using _00_Framework.Application;
 using _00_Framework.Domain;
@@ -10,8 +11,8 @@ using SocialNetworkApi.Presentation.WebApi.Tools;
 
 // Add services to the container.
 var builder = WebApplication.CreateBuilder(args);
-string connectionString = builder.Configuration.GetConnectionString("socialNetworkApiConnectionStringHome");
-//string connectionString = builder.Configuration.GetConnectionString("socialNetworkApiConnectionStringNoc");
+//string connectionString = builder.Configuration.GetConnectionString("socialNetworkApiConnectionStringHome");
+string connectionString = builder.Configuration.GetConnectionString("socialNetworkApiConnectionStringNoc");
 Configuration.Configure(builder.Services,connectionString);
 
 //wire up and register the needed services
@@ -40,19 +41,17 @@ builder.Services.AddControllers();
 //});
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-//builder.Services.AddSwaggerGen(opt =>
-//{
-//    opt.SwaggerDoc("SocialNetwork Api V1",
-//        new OpenApiInfo
-//        {
-//            Version = "v1",
-//            Title = "Social network API",
-//            Description = "An ASP.NET Core Web API for a social network",
-//        });
-//    var xmlDoc = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-//    opt.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory,xmlDoc));
-//});
+builder.Services.AddSwaggerGen(swgGenOpt =>
+{
+    swgGenOpt.SwaggerDoc("v1",new OpenApiInfo
+    {
+        Title = "Social Network Api V1",
+        Description = "This is an api to work with social network operations...",
+        Version = "v1.0",
+    });
+    var xmlDoc = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    swgGenOpt.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlDoc));
+});
 
 var app = builder.Build();
 
@@ -60,7 +59,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(opt =>
+    {
+        opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Social network Api v1");
+    });
 }
 app.UseHttpsRedirection();
 app.UseStaticFiles();
