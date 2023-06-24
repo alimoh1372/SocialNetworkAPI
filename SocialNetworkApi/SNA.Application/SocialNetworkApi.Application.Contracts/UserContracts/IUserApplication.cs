@@ -19,7 +19,7 @@ public interface IUserApplication
     /// </summary>
     /// <param name="id">user id</param>
     /// <returns></returns>
-    Task<EditProfilePicture?> GetEditProfileDetails(long id);
+    Task<EditProfilePicture?> GetEditProfilePictureDetails(long id);
 
     /// <summary>
     /// Filter users with the <paramref name="searchModel"/>

@@ -34,7 +34,7 @@ public class MessageApplication : IMessageApplication
 
 
         _context.SaveChanges();
-        //Todo:Send a notify to receiver person or reload that page if he is online
+        
 
         return result.Succedded();
 

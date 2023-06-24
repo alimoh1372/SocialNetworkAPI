@@ -14,6 +14,6 @@ public class EditProfilePicture
     public long Id { get; set; }
     [Required]
     public IFormFile ProfilePicture { get; set; }
-    [Required(AllowEmptyStrings = true)]
-    public string PreviousProfilePicture { get; set; }
+    
+    public string? PreviousProfilePicture { get; set; }
 }

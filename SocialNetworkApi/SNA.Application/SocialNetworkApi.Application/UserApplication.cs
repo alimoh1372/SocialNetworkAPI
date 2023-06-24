@@ -73,7 +73,7 @@ public class UserApplication : IUserApplication
 
     }
 
-    public async Task<EditProfilePicture?> GetEditProfileDetails(long id)
+    public async Task<EditProfilePicture?> GetEditProfilePictureDetails(long id)
     {
         return await _context.Users.Select(x => new EditProfilePicture
         {
@@ -92,7 +92,7 @@ public class UserApplication : IUserApplication
             ProfilePicture = x.ProfilePicture
         });
         if (!string.IsNullOrWhiteSpace(searchModel.Email))
-            query = query.Where(x => x.Email == searchModel.Email);
+            query = query.Where(x => x.Email.Contains( searchModel.Email));
 
         return query.ToListAsync();
     }

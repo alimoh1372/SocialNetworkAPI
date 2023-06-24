@@ -22,7 +22,11 @@ public interface IUserRelationApplication
     /// <param name="id"></param>
     /// <returns></returns>
     OperationResult Decline(long id);
-
+    /// <summary>
+    /// Get All user except current user 
+    /// </summary>
+    /// <param name="currentUserId"></param>
+    /// <returns></returns>
     Task<List<UserWithRequestStatusVieModel>> GetAllUserWithRequestStatus(long currentUserId);
 
     /// <summary>

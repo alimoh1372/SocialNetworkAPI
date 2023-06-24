@@ -18,6 +18,8 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         {
             _userApplication = userApplication;
         }
+
+        #region Post Apis
         /// <summary>
         /// Sign up  user to be able to use the app with <paramref name="command"/> values
         /// </summary>
@@ -127,7 +129,7 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> ChangeProfilePicture([FromForm]EditProfilePicture command)
+        public async Task<IActionResult> ChangeProfilePicture([FromForm] EditProfilePicture command)
         {
             var result = new OperationResult();
             if (!ModelState.IsValid)
@@ -138,7 +140,7 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
                 return BadRequest(ErrorMessages.ToString());
             }
 
-            result =await _userApplication.ChangeProfilePicture(command);
+            result = await _userApplication.ChangeProfilePicture(command);
 
             if (!result.IsSuccedded)
                 return StatusCode(500, result);
@@ -147,5 +149,75 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         }
 
         //TODO:Implementing login and return token to the client
+
+
+        #endregion
+
+        #region Get Apis
+
+        /// <summary>
+        /// Get The information of user to edit profile picture
+        /// </summary>
+        /// <param name="id">user id</param>
+        /// <returns>an <see cref="EditProfilePicture"/> or <see langword="null"/></returns>
+        /// <remarks>
+        /// Sample Request:
+        ///
+        ///     ?id=1
+        ///
+        /// Sample Response:
+        /// 
+        ///     {
+        ///      "Id": 1,
+        ///      "ProfilePicture": null,  
+        ///      "PreviousProfilePicture": "/DefaultPicture.jpg"
+        ///     }
+        /// </remarks>
+        [HttpGet]
+        public async Task<EditProfilePicture?> GetEditProfilePictureDetails([FromQuery]long id)
+        {
+            return await _userApplication.GetEditProfilePictureDetails(id);
+        }
+
+
+
+        /// <summary>
+        /// Get list of <see cref="UserViewModel"/> that contain <paramref name="searchModel"/> items
+        /// </summary>
+        /// <param name="searchModel">search in emails </param>
+        /// <returns>an <see cref="EditProfilePicture"/> or <see langword="null"/></returns>
+        /// <remarks>
+        /// Sample Request:
+        ///
+        ///     ?Email=ali
+        ///
+        /// Sample Response:
+        /// 
+        ///     [
+        ///     {
+        ///         "id": 1,
+        ///         "email": "ali@example.com",
+        ///         "profilePicture": "/UploadFiles/Users/aliProfile.png",
+        ///         "name": null,
+        ///         "lastName": null,
+        ///         "aboutMe": null
+        ///     },
+        ///     {
+        ///         "id": 2,
+        ///         "email": "reza@example.com",
+        ///         "profilePicture": "/Images/DefaultProfile.png",
+        ///         "name": null,
+        ///         "lastName": null,
+        ///         "aboutMe": null
+        ///     }
+        ///     ]
+        /// </remarks>
+        [HttpGet]
+        public async Task<List<UserViewModel>> SearchAsync([FromQuery]SearchModel searchModel)
+        {
+            return await _userApplication.SearchAsync(searchModel);
+        }
+
+        #endregion
     }
 }
