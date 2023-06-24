@@ -24,7 +24,7 @@ public class UserApplication : IUserApplication
     {
         var operation = new OperationResult();
 
-        if (!_context.Users.Any(x => x.Email == command.Email))
+        if (_context.Users.Any(x => x.Email == command.Email))
             return operation.Failed(ApplicationMessage.Duplication);
 
         //encrypt the password of user to save on database
