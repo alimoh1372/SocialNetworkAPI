@@ -32,8 +32,21 @@ public class Configuration
         //    x.UseInMemoryDatabase("SocialNetworkApiDb"));
     }
 
-    public static void Configure(IServiceCollection builderServices)
+    public static void Configure(IServiceCollection services)
     {
-        builderServices.AddDbContext<SocialNetworkApiContext>();
+
+        services.AddScoped<IUserApplication, UserApplication>();
+
+        services.AddScoped<IUserRelationApplication, UserRelationApplication>();
+
+
+        services.AddScoped<IMessageApplication, MessageApplication>();
+
+
+
+        services.AddDbContext<SocialNetworkApiContext>(x => x.UseSqlServer());
+        //services.AddDbContext<SocialNetworkApiContext>(x =>
+        //    x.UseInMemoryDatabase("SocialNetworkApiDb"));
     }
+    
 }

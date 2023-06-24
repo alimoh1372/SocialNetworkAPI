@@ -35,7 +35,7 @@ public class UserApplication : IUserApplication
         //add to database
         _context.Add(account);
         _context.SaveChanges();
-        return operation.Succedded();
+        return operation.Succedded($"Account created.User id:{account.Id}");
     }
 
     public OperationResult Edit(EditUser command)
