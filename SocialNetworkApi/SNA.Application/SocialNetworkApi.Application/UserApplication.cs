@@ -15,7 +15,7 @@ public class UserApplication : IUserApplication
     private readonly IFileUpload _fileUpload;
     public UserApplication(SocialNetworkApiContext context, IPasswordHasher passwordHasher, IFileUpload fileUpload)
     {
-
+        _context=context;
         _passwordHasher = passwordHasher;
         _fileUpload = fileUpload;
     }
