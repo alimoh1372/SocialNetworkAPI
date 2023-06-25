@@ -10,12 +10,14 @@ namespace SocialNetworkApi.Application;
 public class UserApplication : IUserApplication
 {
     private readonly SocialNetworkApiContext _context;
+    private readonly IAuthHelper _authHelper;
     private readonly IPasswordHasher _passwordHasher;
 
     private readonly IFileUpload _fileUpload;
-    public UserApplication(SocialNetworkApiContext context, IPasswordHasher passwordHasher, IFileUpload fileUpload)
+    public UserApplication(SocialNetworkApiContext context,IAuthHelper authHelper, IPasswordHasher passwordHasher, IFileUpload fileUpload)
     {
         _context=context;
+        _authHelper = authHelper;
         _passwordHasher = passwordHasher;
         _fileUpload = fileUpload;
     }
@@ -131,12 +133,12 @@ public class UserApplication : IUserApplication
             return "";
 
 
-        //Adding the identity items to the cookie of client
+        
         var authViewModel = new AuthViewModel(user.Id, user.Email);
 
-        //ToDo:Creating token and return it
+        
 
-        return "";
+        return await _authHelper.CreateToken(authViewModel);
     }
 
     public void Logout()
