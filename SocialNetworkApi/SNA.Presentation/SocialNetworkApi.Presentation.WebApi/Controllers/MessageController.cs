@@ -17,6 +17,7 @@ public class MessageController : ControllerBase
         _messageApplication = messageApplication;
     }
 
+    #region Post Methods
 
     /// <summary>
     /// Send A message From UserA To UserB
@@ -62,7 +63,7 @@ public class MessageController : ControllerBase
 
 
     /// <summary>
-    /// To edit message by user A(Sender)<br/>
+    /// To edit message by user A(Sender) 
     /// First finding the message then edit message content
     /// </summary>
     /// <param name="command">Required value to send message</param>
@@ -101,4 +102,113 @@ public class MessageController : ControllerBase
 
         return Ok(result);
     }
+
+    #endregion
+
+
+    #region Get Methods
+
+    /// <summary>
+    /// Get all messages between two user=> userA=<paramref name="idUserA"/> and userB=<paramref name="idUserB"/>
+    /// </summary>
+    /// <param name="idUserA">Id of user A in chat message</param>
+    /// <param name="idUserB">Id of user B in chat message</param>
+    /// <returns>List of <see cref="MessageViewModel"/> between <paramref name="idUserA"/> and <paramref name="idUserB"/></returns>
+    /// <remarks>
+    /// Sample Request:
+    ///
+    ///     ?idUserA=1&amp;idUserB=2
+    ///
+    /// Sample Response:
+    /// 
+    ///     [
+    ///     {
+    ///         "id": 4,
+    ///         "creationDate": "2023-06-25T08:28:42.584567+00:00",
+    ///         "fkFromUserId": 1,
+    ///         "senderFullName": "ali mohammadzadeh",
+    ///         "fkToUserId": 3,
+    ///         "receiverFullName": "sara nemati",
+    ///         "messageContent": "Hellooooooo",
+    ///         "fromUserProfilePicture": "/UploadFiles/Users/aliProfile.png",
+    ///         "toUserProfilePicture": "/Images/DefaultProfile.png"
+    ///     },
+    ///     {
+    ///         "id": 5,
+    ///         "creationDate": "2023-06-25T08:30:29.4078184+00:00",
+    ///         "fkFromUserId": 3,
+    ///         "senderFullName": "sara nemati",
+    ///         "fkToUserId": 1,
+    ///         "receiverFullName": "ali mohammadzadeh",
+    ///         "messageContent": "hello how are you",
+    ///         "fromUserProfilePicture": "/Images/DefaultProfile.png",
+    ///         "toUserProfilePicture": "/UploadFiles/Users/aliProfile.png"
+    ///     }
+    ///     ]
+    /// </remarks>
+    [HttpGet]
+    public async Task<List<MessageViewModel>> LoadChatHistory([FromQuery] long idUserA, long idUserB)
+    {
+        return await _messageApplication.LoadChatHistory(idUserA, idUserB);
+    }
+
+
+
+
+    /// <summary>
+    /// Get The edit model=<see cref="EditMessage"/> 
+    /// </summary>
+    /// <param name="id">id of message you want to edit</param>
+    /// <returns><see langword="null"/> if there isn't any message with <paramref name="id"/></returns>
+    /// <remarks>
+    /// Sample Request:
+    ///
+    ///     ?id=1
+    ///
+    /// Sample Response:
+    /// 
+    ///     {
+    ///         "id": 1,
+    ///         "fkFromUserId": 1,
+    ///         "fkToUserId": 2,
+    ///         "messageContent": "Hello Reza.How are yor?"
+    ///     }
+    /// </remarks>
+    [HttpGet]
+    public async Task<EditMessage?> GetEditMessageBy([FromQuery] long id)
+    {
+        return await _messageApplication.GetEditMessageBy(id);
+    }
+
+
+    /// <summary>
+    /// Get Message viewmodel=<see cref="MessageViewModel"/> 
+    /// </summary>
+    /// <param name="id">id of message you want to get</param>
+    /// <returns><see langword="null"/> if there isn't any message with <paramref name="id"/></returns>
+    /// <remarks>
+    /// Sample Request:
+    ///
+    ///     ?id=1
+    ///
+    /// Sample Response:
+    /// 
+    ///     {
+    ///         "id": 4,
+    ///         "creationDate": "2023-06-25T08:28:42.584567+00:00",
+    ///         "fkFromUserId": 1,
+    ///         "senderFullName": "ali mohammadzadeh",
+    ///         "fkToUserId": 3,
+    ///         "receiverFullName": "sara nemati",
+    ///         "messageContent": "Hellooooooo",
+    ///         "fromUserProfilePicture": "/UploadFiles/Users/aliProfile.png",
+    ///         "toUserProfilePicture": "/Images/DefaultProfile.png"
+    ///     }
+    /// </remarks>
+    [HttpGet]
+    public async Task<MessageViewModel?> GetMessageViewModelBy(long id)
+    {
+        return await _messageApplication.GetMessageViewModelBy(id);
+    }
+    #endregion
 }
