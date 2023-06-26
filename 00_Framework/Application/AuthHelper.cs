@@ -9,12 +9,12 @@ namespace _00_Framework.Application;
 
 public class AuthHelper :IAuthHelper 
 {
-    private readonly Jwt jwtSetting;
+    private readonly Jwt _jwtSetting;
     private readonly IHttpContextAccessor _httpContextAccessor;
     public AuthHelper(IOptions<Jwt> jwtSetting, IHttpContextAccessor httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
-        this.jwtSetting = jwtSetting.Value;
+        _jwtSetting = jwtSetting.Value;
     }
     /// <summary>
     /// Create a token from model you give
@@ -23,7 +23,7 @@ public class AuthHelper :IAuthHelper
     /// <returns></returns>
     public Task<string> CreateToken(AuthViewModel authViewModel)
     {
-        var tokenDescriptor = SecurityTokenDescriptor(authViewModel,jwtSetting);
+        var tokenDescriptor = SecurityTokenDescriptor(authViewModel,_jwtSetting);
 
         JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
         SecurityToken? token = tokenHandler.CreateToken(tokenDescriptor);
@@ -33,25 +33,28 @@ public class AuthHelper :IAuthHelper
 
     private SecurityTokenDescriptor SecurityTokenDescriptor(AuthViewModel authViewModel, Jwt jwtSetting)
     {
+        var eckeyTemp=Encoding.UTF8.GetBytes( jwtSetting.EncryptKey);
+        byte[] eckey=new byte[256/8];
+        Array.Copy(eckeyTemp,eckey,256/8);
         SymmetricSecurityKey symmetricSecurityKey =
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this.jwtSetting.SigningKey));
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this._jwtSetting.SigningKey));
         SigningCredentials signingKey =
             new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha512Signature);
-        SymmetricSecurityKey encryptSymmetricKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this.jwtSetting.EncryptKey));
+        SymmetricSecurityKey encryptSymmetricKey = new SymmetricSecurityKey(eckey);
         EncryptingCredentials encryptKey =
-            new EncryptingCredentials(encryptSymmetricKey, SecurityAlgorithms.Aes256CbcHmacSha512);
+            new EncryptingCredentials(encryptSymmetricKey,SecurityAlgorithms.Aes256KW, SecurityAlgorithms.Aes256CbcHmacSha512);
 
         SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor()
         {
-            Issuer = this.jwtSetting.Issuer,
-            IssuedAt = DateTime.UtcNow.AddSeconds(-10),
+            Issuer = jwtSetting.Issuer,
+            IssuedAt = DateTime.Now.AddSeconds(-10),
             Subject = new ClaimsIdentity(new[]
             {
                 new Claim("UserId", authViewModel.Id.ToString()),
                 new Claim(ClaimTypes.Email, authViewModel.Username)
             }),
-            Expires = DateTime.UtcNow.AddMinutes(this.jwtSetting.ExpireTimeInMinute),
-            NotBefore = DateTime.UtcNow.AddSeconds(-20),
+            Expires = DateTime.Now.AddMinutes(jwtSetting.ExpireTimeInMinute),
+            NotBefore = DateTime.Now.AddSeconds(-20),
             SigningCredentials = signingKey,
             EncryptingCredentials = encryptKey
         };

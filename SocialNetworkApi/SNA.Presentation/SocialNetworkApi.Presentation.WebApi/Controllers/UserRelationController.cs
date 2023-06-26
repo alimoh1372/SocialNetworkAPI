@@ -8,6 +8,7 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
+    [Authorize]
     public class UserRelationController : ControllerBase
     {
         private readonly IUserRelationApplication _userRelationApplication;

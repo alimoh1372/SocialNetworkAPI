@@ -28,7 +28,16 @@ public interface IUserApplication
     /// <returns></returns>
     Task<List<UserViewModel>> SearchAsync(SearchModel searchModel);
     Task<OperationResult> ChangeProfilePicture(EditProfilePicture command);
-
+    /// <summary>
+    /// Get the login information=<paramref name="command"/> 
+    /// </summary>
+    /// <param name="command">There is UserNam=Email and password to login</param>
+    /// <returns>
+    /// if UserName and password be correct so return an encrypted token JWE
+    /// <remarks>
+    /// if they aren't correct so return empty string
+    /// </remarks>
+    /// </returns>
     Task<string> Login(Login command);
     void Logout();
 

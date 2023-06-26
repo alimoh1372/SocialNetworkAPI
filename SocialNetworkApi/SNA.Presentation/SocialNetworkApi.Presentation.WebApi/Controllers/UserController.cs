@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using _00_Framework.Application;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,13 +11,15 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
 
     [Route("api/[controller]/[action]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UserController : ControllerBase
     {
         private readonly IUserApplication _userApplication;
-
-        public UserController(IUserApplication userApplication)
+        private readonly IAuthHelper _authHelper;
+        public UserController(IUserApplication userApplication, IAuthHelper authHelper)
         {
             _userApplication = userApplication;
+            _authHelper = authHelper;
         }
 
         #region Post Apis
@@ -58,6 +61,7 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
                 return BadRequest(ErrorMessages.ToString());
             }
 
+           
             result = _userApplication.Create(command);
 
             if (!result.IsSuccedded)
@@ -83,10 +87,12 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         /// </remarks>
         /// <response code="200">return succeed message</response>
         /// <response code="400">return error message for request model</response>
+        /// <response code="401">return Unauthorized response when you didn't have access permission to this firs login</response>
         /// <response code="500">return internal server error </response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public IActionResult ChangePassword(ChangePassword command)
         {
@@ -98,7 +104,11 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
 
                 return BadRequest(ErrorMessages.ToString());
             }
-
+            var authMode = _authHelper.GetUserInfo();
+            if (authMode == null)
+                return Unauthorized("Please first login");
+            if (authMode.Result.Id != command.Id)
+                return Unauthorized("You can't do this Operation");
             result = _userApplication.ChangePassword(command);
 
             if (!result.IsSuccedded)
@@ -124,6 +134,7 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         /// </remarks>
         /// <response code="200">return succeed message</response>
         /// <response code="400">return error message for request model</response>
+        /// <response code="401">return Unauthorized response when you didn't have access permission to this firs login</response>
         /// <response code="500">return internal server error </response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -148,8 +159,30 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
             return Ok(result);
         }
 
-        //TODO:Implementing login and return token to the client
 
+        /// <summary>
+        /// Get the login information=<paramref name="command"/> 
+        /// </summary>
+        /// <param name="command">There is UserNam=Email and password to login</param>
+        /// <returns>
+        /// if UserName and password be correct so return an encrypted token JWE
+        /// <remarks>
+        /// if they aren't correct so return empty string
+        /// </remarks>
+        /// </returns>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     {
+        ///      "UserName": aliMohammadzade@gmail.com,
+        ///      "Password": "IFormFile.jpg"
+        ///     }
+        /// </remarks>
+        [HttpPost,AllowAnonymous]
+        public async Task<string> Login(Login command)
+        {
+            return await _userApplication.Login(command);
+        }
 
         #endregion
 

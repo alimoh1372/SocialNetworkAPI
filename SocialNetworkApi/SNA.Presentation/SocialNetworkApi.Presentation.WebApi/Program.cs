@@ -49,6 +49,9 @@ builder.Services.AddAuthentication(configOpt =>
     configOpt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(opt =>
 {
+    var eckeyTemp = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:EncryptKey"]);
+    byte[] eckey = new byte[256 / 8];
+    Array.Copy(eckeyTemp, eckey, 256 / 8);
     opt.TokenValidationParameters = new TokenValidationParameters
     {
 
@@ -56,8 +59,9 @@ builder.Services.AddAuthentication(configOpt =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SigningKey"])),
         ValidateIssuer = true,
         ValidateLifetime = true,
+        ValidateAudience = false,
         ValidateIssuerSigningKey = true,
-        TokenDecryptionKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:EncryptKey"])),
+        TokenDecryptionKey = new SymmetricSecurityKey(eckey),
         RequireExpirationTime = true,
         ClockSkew = TimeSpan.Zero
     };
@@ -113,7 +117,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthorization();
-
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

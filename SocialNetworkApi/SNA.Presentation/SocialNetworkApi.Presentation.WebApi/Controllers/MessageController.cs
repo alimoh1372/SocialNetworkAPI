@@ -1,4 +1,5 @@
 ﻿using _00_Framework.Application;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,7 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers;
 
 [Route("api/[controller]/[action]")]
 [ApiController]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class MessageController : ControllerBase
 {
     private readonly IMessageApplication _messageApplication;
