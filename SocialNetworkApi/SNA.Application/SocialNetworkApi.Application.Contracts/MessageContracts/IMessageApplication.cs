@@ -41,12 +41,11 @@ public interface IMessageApplication
     /// <summary>
     /// To get All message between two user
     /// </summary>
-    /// <param name="idUserA"></param>
-    /// <param name="idUserB"></param>
+    /// <param name="request"></param>
     /// <returns>
     /// List of <see cref="MessageViewModel"/> if there isn't any Message return <see langword="null"/>
     /// </returns>
-    Task<List<MessageViewModel>> LoadChatHistory(long idUserA, long idUserB);
+    Task<List<MessageViewModel>> LoadChatHistory(LoadChat request);
 
     /// <summary>
     /// Get the Latest Message between two user

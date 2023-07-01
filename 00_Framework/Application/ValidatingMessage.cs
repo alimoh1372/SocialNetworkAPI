@@ -11,7 +11,7 @@
         public const string MaxFileSize = "حجم فایل ارسالی بیشتر از حد مجاز میباشد.";
         public const string FileExtension = "فرمت فایل ارسالی مجاز نمیباشد.";
         public const string NumberOutOfRange = "عدد وارد شده خارج از محدوده مجاز میباشد";
-
+        public const string ForbiddenToAccess = "Access to this content is forbidden to you";
 
 
 

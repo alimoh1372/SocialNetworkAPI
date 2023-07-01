@@ -1,4 +1,6 @@
 ﻿using _00_Framework.Application;
+using _00_Framework.Application.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,14 +10,15 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UserRelationController : ControllerBase
     {
         private readonly IUserRelationApplication _userRelationApplication;
-
-        public UserRelationController(IUserRelationApplication userRelationApplication)
+        private readonly IAuthHelper _authHelper;
+        public UserRelationController(IUserRelationApplication userRelationApplication, IAuthHelper authHelper)
         {
             _userRelationApplication = userRelationApplication;
+            _authHelper = authHelper;
         }
 
         /// <summary>
@@ -32,15 +35,18 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         ///       "relationRequestMessage": "string"
         ///     }
         /// </remarks>
-        /// <response code="200">return succeed message and Request Id</response>
+        /// <response code="200">return succeed message</response>
         /// <response code="400">return error message for request model</response>
+        /// <response code="401">return Unauthorized response when you didn't have access permission to this section</response>
+        /// <response code="403">return Deny to access content source because didn't have permission</response>
         /// <response code="500">return internal server error </response>
         [HttpPost]
-        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult CreateRelation(CreateUserRelation command)
+        public async  Task<IActionResult> CreateRelation(CreateUserRelation command)
         {
             var result = new OperationResult();
             if (!ModelState.IsValid)
@@ -50,56 +56,62 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
 
                 return BadRequest(ErrorMessages.ToString());
             }
-
+            var authMode =await _authHelper.GetUserInfo();
+            if (authMode == null)
+                return Unauthorized("Please first login");
+            if (authMode.Id != command.FkUserAId)
+                return StatusCode(StatusCodes.Status403Forbidden, ValidatingMessage.ForbiddenToAccess);
             result = _userRelationApplication.Create(command);
 
             if (!result.IsSuccedded)
                 return StatusCode(500, result);
 
-            return Ok(result);
+            return Ok(result.Message);
         }
 
+        //This is a bad method because doesn't have any control on it,and can accept any relation from any one
 
+        ///// <summary>
+        ///// Current user  accept the relationship  request From other user
+        ///// using the <code>UserRelation</code> <paramref name="idModel"/>
+        ///// </summary>
+        ///// <param name="idModel">id of request or <code>UserRelationController</code> Entity</param>
+        ///// <returns> if model <paramref name="idModel"/> values is valid so return  <see cref="OperationResult"/> with succeed status </returns>
+        ///// <remarks>
+        ///// Sample request:
+        ///// 
+        /////     {
+        /////      "id": 1
+        /////     }
+        ///// </remarks>
+        ///// <response code="200">return succeed message</response>
+        ///// <response code="400">return error message for request model</response>
+        ///// <response code="401">return Unauthorized response when you didn't have access permission to this section</response>
+        ///// <response code="500">return internal server error </response>
+        //[HttpPost]
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        //[ProducesResponseType(StatusCodes.Status403Forbidden)]
+        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        //public IActionResult AcceptRelationBy(IdModelArgument<long> idModel)
+        //{
+        //    var result = new OperationResult();
+        //    if (!ModelState.IsValid)
+        //    {
+        //        var ErrorMessages = ModelState.SelectMany(x => x.Value.Errors)
+        //            .Select(x => x.ErrorMessage).ToList();
 
-        /// <summary>
-        /// Current user  accept the relationship  request From other user
-        /// using the <code>UserRelationController</code> <paramref name="id"/>
-        /// </summary>
-        /// <param name="id">id of request or <code>UserRelationController</code> Entity</param>
-        /// <returns> if model <paramref name="id"/> values is valid so return  <see cref="OperationResult"/> with succeed status </returns>
-        /// <remarks>
-        /// Sample request:
-        /// 
-        ///     {
-        ///      "id": 1
-        ///     }
-        /// </remarks>
-        /// <response code="200">return succeed message and Request Id</response>
-        /// <response code="400">return error message for request model</response>
-        /// <response code="500">return internal server error </response>
-        [HttpPost]
-        [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public IActionResult AcceptRelationBy(long id)
-        {
-            var result = new OperationResult();
-            if (!ModelState.IsValid)
-            {
-                var ErrorMessages = ModelState.SelectMany(x => x.Value.Errors)
-                    .Select(x => x.ErrorMessage).ToList();
+        //        return BadRequest(ErrorMessages.ToString());
+        //    }
 
-                return BadRequest(ErrorMessages.ToString());
-            }
+        //    result = _userRelationApplication.Accept(idModel.Id);
 
-            result = _userRelationApplication.Accept(id);
+        //    if (!result.IsSuccedded)
+        //        return StatusCode(500, result);
 
-            if (!result.IsSuccedded)
-                return StatusCode(500, result);
-
-            return Ok(result);
-        }
+        //    return Ok(result);
+        //}
 
         /// <summary>
         /// Accept the relation by current user=<paramref name="userIdRequestSentToIt"/> that request sent to it
@@ -108,15 +120,18 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         /// <param name="userIdRequestSentFromIt">User id that requested relationship</param>
         /// <param name="userIdRequestSentToIt">User id that request sent to it</param>
         /// <returns> if model <paramref name="userIdRequestSentFromIt"/> and <see cref="userIdRequestSentToIt"/> values is valid so return  <see cref="OperationResult"/> with succeed status </returns>
-        /// <response code="200">return succeed message and Request Id</response>
+        /// <response code="200">return succeed message</response>
         /// <response code="400">return error message for request model</response>
+        /// <response code="401">return Unauthorized response when you didn't have access permission to this section</response>
+        /// <response code="403">return Deny to access content source because didn't have permission</response>
         /// <response code="500">return internal server error </response>
         [HttpPost]
-        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> AcceptRelation(long userIdRequestSentFromIt, long userIdRequestSentToIt)
+        public async Task<IActionResult> AcceptRelation([FromQuery]AcceptUserRelation command)
         {
             var result = new OperationResult();
             if (!ModelState.IsValid)
@@ -126,9 +141,12 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
 
                 return BadRequest(ErrorMessages.ToString());
             }
-
-            result = await _userRelationApplication.Accept(userIdRequestSentFromIt, userIdRequestSentToIt);
-
+            var authMode =await  _authHelper.GetUserInfo();
+            if (authMode == null)
+                return Unauthorized("Please first login");
+            if (authMode.Id !=command.userIdRequestSentToIt)
+                return StatusCode(StatusCodes.Status403Forbidden, ValidatingMessage.ForbiddenToAccess);
+            result = await _userRelationApplication.Accept(command);
             if (!result.IsSuccedded)
                 return StatusCode(500, result);
 
@@ -171,13 +189,34 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         ///      }
         ///      ]
         /// </remarks>
+        /// <response code="200">return succeed message</response>
+        /// <response code="400">return error message for request model</response>
+        /// <response code="401">return Unauthorized response when you didn't have access permission to this section</response>
+        /// <response code="403">return Deny to access content source because didn't have permission</response>
+        /// <response code="500">return internal server error </response>
         [HttpGet]
-        public async Task<List<UserWithRequestStatusVieModel>> GetAllUserWithRequestStatus([FromQuery] long currentUserId)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAllUserWithRequestStatus([FromQuery]IdModelArgument<long> currentUserId)
         {
-            return await _userRelationApplication.GetAllUserWithRequestStatus(currentUserId);
+            if (!ModelState.IsValid)
+            {
+                var ErrorMessages = ModelState.SelectMany(x => x.Value.Errors)
+                    .Select(x => x.ErrorMessage).ToList();
+
+                return BadRequest(ErrorMessages.ToString());
+            }
+            var authModel =await _authHelper.GetUserInfo();
+            if (authModel == null)
+                return Unauthorized("Please first login");
+            if (authModel.Id != currentUserId.Id)
+                return StatusCode(StatusCodes.Status403Forbidden, ValidatingMessage.ForbiddenToAccess);
+            return Ok(await _userRelationApplication.GetAllUserWithRequestStatus(currentUserId.Id));
+
         }
-
-
 
 
 
@@ -216,10 +255,26 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         ///      }
         ///      ]
         /// </remarks>
+        /// <response code="200">return succeed message</response>
+        /// <response code="400">return error message for request model</response>
+        /// <response code="401">return Unauthorized response when you didn't have access permission to this section</response>
+        /// <response code="500">return internal server error </response>
         [HttpGet]
-        public async Task<List<UserWithRequestStatusVieModel>> GetFriendsOfUser([FromQuery] long userId)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetFriendsOfUser([FromQuery]IdModelArgument<long> userId)
         {
-            return await _userRelationApplication.GetAllUserWithRequestStatus(userId);
+            if (!ModelState.IsValid)
+            {
+                var ErrorMessages = ModelState.SelectMany(x => x.Value.Errors)
+                    .Select(x => x.ErrorMessage).ToList();
+
+                return BadRequest(ErrorMessages);
+            }
+            return Ok( await _userRelationApplication.GetAllUserWithRequestStatus(userId.Id));
         }
 
 
@@ -239,10 +294,31 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         /// 
         ///     1
         /// </remarks>
+        /// <response code="200">return succeed message</response>
+        /// <response code="400">return error message for request model</response>
+        /// <response code="401">return Unauthorized response when you didn't have access permission to this section</response>
+        /// <response code="403">return Deny to access content source because didn't have permission</response>
+        /// <response code="500">return internal server error </response>
         [HttpGet]
-        public async Task<int> GetNumberOfMutualFriend([FromQuery] long currentUserId, long friendUserId)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetNumberOfMutualFriend([FromQuery]NumberOfMutualFriend request)
         {
-            return await _userRelationApplication.GetNumberOfMutualFriend(currentUserId, friendUserId);
+            if (!ModelState.IsValid)
+            {
+                var ErrorMessages = ModelState.SelectMany(x => x.Value.Errors)
+                    .Select(x => x.ErrorMessage).ToList();
+
+                return BadRequest(ErrorMessages);
+            }
+            var authModel = await _authHelper.GetUserInfo();
+            if (authModel == null)
+                return Unauthorized("Please first login");
+            if (authModel.Id !=request.CurrentUserId)
+                return StatusCode(StatusCodes.Status403Forbidden, ValidatingMessage.ForbiddenToAccess);
+            return Ok(await _userRelationApplication.GetNumberOfMutualFriend(request));
         }
         #endregion
     }

@@ -1,4 +1,5 @@
 ﻿using _00_Framework.Application;
+using _00_Framework.Application.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -13,10 +14,11 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers;
 public class MessageController : ControllerBase
 {
     private readonly IMessageApplication _messageApplication;
-
-    public MessageController(IMessageApplication messageApplication)
+    private readonly IAuthHelper _authHelper;
+    public MessageController(IMessageApplication messageApplication, IAuthHelper authHelper)
     {
         _messageApplication = messageApplication;
+        _authHelper = authHelper;
     }
 
     #region Post Methods
@@ -35,15 +37,18 @@ public class MessageController : ControllerBase
     ///       "messageContent": "Hello Reza.How are yor?"
     ///     }
     /// </remarks>
-    /// <response code="200">return succeed message and Request Id</response>
+    /// <response code="200">return succeed message</response>
     /// <response code="400">return error message for request model</response>
+    /// <response code="401">return Unauthorized response when you didn't have access permission to this section</response>
+    /// <response code="403">return Deny to access content source because didn't have permission</response>
     /// <response code="500">return internal server error </response>
     [HttpPost]
-    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public IActionResult SendSend(SendMessage command)
+    public async Task<IActionResult> SendSend(SendMessage command)
     {
         var result = new OperationResult();
         if (!ModelState.IsValid)
@@ -53,7 +58,11 @@ public class MessageController : ControllerBase
 
             return BadRequest(ErrorMessages.ToString());
         }
-
+        var authMode =await _authHelper.GetUserInfo();
+        if (authMode == null)
+            return Unauthorized("Please first login");
+        if (authMode.Id != command.FkFromUserId)
+            return StatusCode(StatusCodes.Status403Forbidden, ValidatingMessage.ForbiddenToAccess);
         result = _messageApplication.Send(command);
 
         if (!result.IsSuccedded)
@@ -78,15 +87,18 @@ public class MessageController : ControllerBase
     ///      "MessageContent": "Hello Reza.How are yor?"
     ///     }
     /// </remarks>
-    /// <response code="200">return succeed message and Request Id</response>
+    /// <response code="200">return succeed message</response>
     /// <response code="400">return error message for request model</response>
+    /// <response code="401">return Unauthorized response when you didn't have access permission to this section</response>
+    /// <response code="403">return Deny to access content source because didn't have permission</response>
     /// <response code="500">return internal server error </response>
     [HttpPost]
-    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public IActionResult Edit(EditMessage command)
+    public async Task<IActionResult> Edit(EditMessage command)
     {
         var result = new OperationResult();
         if (!ModelState.IsValid)
@@ -96,9 +108,13 @@ public class MessageController : ControllerBase
 
             return BadRequest(ErrorMessages.ToString());
         }
-
+        var authMode = await _authHelper.GetUserInfo();
+        if (authMode == null)
+            return Unauthorized("Please first login");
+        if (authMode.Id != command.FkFromUserId)
+            return StatusCode(StatusCodes.Status403Forbidden, ValidatingMessage.ForbiddenToAccess);
         result = _messageApplication.Edit(command);
-
+        
         if (!result.IsSuccedded)
             return StatusCode(500, result);
 
@@ -113,14 +129,13 @@ public class MessageController : ControllerBase
     /// <summary>
     /// Get all messages between two user=> userA=<paramref name="idUserA"/> and userB=<paramref name="idUserB"/>
     /// </summary>
-    /// <param name="idUserA">Id of user A in chat message</param>
-    /// <param name="idUserB">Id of user B in chat message</param>
-    /// <returns>List of <see cref="MessageViewModel"/> between <paramref name="idUserA"/> and <paramref name="idUserB"/></returns>
+    /// <param name="request">A model that have current user id and other user id to load chats between them</param>
+    /// <returns>List of <see cref="MessageViewModel"/> between two user in <paramref name="request"/></returns>
     /// <remarks>
     /// Sample Request:
-    ///
+    /// 
     ///     ?idUserA=1&amp;idUserB=2
-    ///
+    /// 
     /// Sample Response:
     /// 
     ///     [
@@ -130,7 +145,7 @@ public class MessageController : ControllerBase
     ///         "fkFromUserId": 1,
     ///         "senderFullName": "ali mohammadzadeh",
     ///         "fkToUserId": 3,
-    ///         "receiverFullName": "sara nemati",
+    ///         "receiverFullName": "reza mohammadzade",
     ///         "messageContent": "Hellooooooo",
     ///         "fromUserProfilePicture": "/UploadFiles/Users/aliProfile.png",
     ///         "toUserProfilePicture": "/Images/DefaultProfile.png"
@@ -139,7 +154,7 @@ public class MessageController : ControllerBase
     ///         "id": 5,
     ///         "creationDate": "2023-06-25T08:30:29.4078184+00:00",
     ///         "fkFromUserId": 3,
-    ///         "senderFullName": "sara nemati",
+    ///         "senderFullName": "reza mohammadzade",
     ///         "fkToUserId": 1,
     ///         "receiverFullName": "ali mohammadzadeh",
     ///         "messageContent": "hello how are you",
@@ -148,10 +163,32 @@ public class MessageController : ControllerBase
     ///     }
     ///     ]
     /// </remarks>
+    /// <response code="200">return succeed message</response>
+    /// <response code="400">return error message for request model</response>
+    /// <response code="401">return Unauthorized response when you didn't have access permission to this section</response>
+    /// <response code="403">return Deny to access content source because didn't have permission</response>
+    /// <response code="500">return internal server error </response>
     [HttpGet]
-    public async Task<List<MessageViewModel>> LoadChatHistory([FromQuery] long idUserA, long idUserB)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> LoadChatHistory([FromQuery]LoadChat request)
     {
-        return await _messageApplication.LoadChatHistory(idUserA, idUserB);
+        if (!ModelState.IsValid)
+        {
+            var ErrorMessages = ModelState.SelectMany(x => x.Value.Errors)
+                .Select(x => x.ErrorMessage).ToList();
+
+            return BadRequest(ErrorMessages.ToString());
+        }
+        var authMode = await _authHelper.GetUserInfo();
+        if (authMode == null)
+            return Unauthorized("Please first login");
+        if (authMode.Id != request.IdUserACurrentUser)
+            return StatusCode(StatusCodes.Status403Forbidden, ValidatingMessage.ForbiddenToAccess);
+        return Ok( await _messageApplication.LoadChatHistory(request));
     }
 
 
@@ -176,10 +213,33 @@ public class MessageController : ControllerBase
     ///         "messageContent": "Hello Reza.How are yor?"
     ///     }
     /// </remarks>
+    /// <response code="200">return succeed message</response>
+    /// <response code="400">return error message for request model</response>
+    /// <response code="401">return Unauthorized response when you didn't have access permission to this section</response>
+    /// <response code="403">return Deny to access content source because didn't have permission</response>
+    /// <response code="500">return internal server error </response>
     [HttpGet]
-    public async Task<EditMessage?> GetEditMessageBy([FromQuery] long id)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetEditMessageBy([FromQuery]IdModelArgument<long> idModel)
     {
-        return await _messageApplication.GetEditMessageBy(id);
+        if (!ModelState.IsValid)
+        {
+            var ErrorMessages = ModelState.SelectMany(x => x.Value.Errors)
+                .Select(x => x.ErrorMessage).ToList();
+
+            return BadRequest(ErrorMessages.ToString());
+        }
+        var authMode = await _authHelper.GetUserInfo();
+        if (authMode == null)
+            return Unauthorized("Please first login");
+        var editMessage= await _messageApplication.GetEditMessageBy(idModel.Id);
+        if (authMode.Id != editMessage.FkFromUserId)
+            return StatusCode(StatusCodes.Status403Forbidden, ValidatingMessage.ForbiddenToAccess);
+        return Ok(editMessage);
     }
 
 
@@ -207,10 +267,33 @@ public class MessageController : ControllerBase
     ///         "toUserProfilePicture": "/Images/DefaultProfile.png"
     ///     }
     /// </remarks>
+    /// <response code="200">return succeed message</response>
+    /// <response code="400">return error message for request model</response>
+    /// <response code="401">return Unauthorized response when you didn't have access permission to this section</response>
+    /// <response code="403">return Deny to access content source because didn't have permission</response>
+    /// <response code="500">return internal server error </response>
     [HttpGet]
-    public async Task<MessageViewModel?> GetMessageViewModelBy(long id)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetMessageViewModelBy(IdModelArgument<long> idModel)
     {
-        return await _messageApplication.GetMessageViewModelBy(id);
+        if (!ModelState.IsValid)
+        {
+            var ErrorMessages = ModelState.SelectMany(x => x.Value.Errors)
+                .Select(x => x.ErrorMessage).ToList();
+
+            return BadRequest(ErrorMessages.ToString());
+        }
+        var authMode = await _authHelper.GetUserInfo();
+        if (authMode == null)
+            return Unauthorized("Please first login");
+        var message = await _messageApplication.GetMessageViewModelBy(idModel.Id);
+        if (authMode.Id != message?.FkFromUserId)
+            return StatusCode(StatusCodes.Status403Forbidden, ValidatingMessage.ForbiddenToAccess);
+        return Ok(message);
     }
     #endregion
 }

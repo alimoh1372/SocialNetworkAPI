@@ -14,9 +14,9 @@ public class UserApplication : IUserApplication
     private readonly IPasswordHasher _passwordHasher;
 
     private readonly IFileUpload _fileUpload;
-    public UserApplication(SocialNetworkApiContext context,IAuthHelper authHelper, IPasswordHasher passwordHasher, IFileUpload fileUpload)
+    public UserApplication(SocialNetworkApiContext context, IAuthHelper authHelper, IPasswordHasher passwordHasher, IFileUpload fileUpload)
     {
-        _context=context;
+        _context = context;
         _authHelper = authHelper;
         _passwordHasher = passwordHasher;
         _fileUpload = fileUpload;
@@ -46,19 +46,19 @@ public class UserApplication : IUserApplication
         throw new NotImplementedException();
     }
 
-    public OperationResult ChangePassword(ChangePassword command)
+    public async Task<OperationResult> ChangePassword(ChangePassword command)
     {
         var operation = new OperationResult();
-        var user = _context.Users.FirstOrDefaultAsync(x => x.Id == command.Id);
-        if (user.Result == null)
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == command.Id);
+        if (user == null)
             return operation.Failed(ApplicationMessage.NotFound);
 
         if (command.Password != command.ConfirmPassword)
             return operation.Failed(ApplicationMessage.PasswordsNotMatch);
 
         var password = _passwordHasher.Hash(command.Password);
-        user.Result.ChangePassword(password);
-        _context.SaveChanges();
+        user.ChangePassword(password);
+        await _context.SaveChangesAsync();
         return operation.Succedded();
     }
 
@@ -85,7 +85,7 @@ public class UserApplication : IUserApplication
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public Task<List<UserViewModel>> SearchAsync(SearchModel searchModel)
+    public async Task<List<UserViewModel>> SearchAsync(UserSearchModel userSearchModel)
     {
         var query = _context.Users.Select(x => new UserViewModel
         {
@@ -93,10 +93,10 @@ public class UserApplication : IUserApplication
             Email = x.Email,
             ProfilePicture = x.ProfilePicture
         });
-        if (!string.IsNullOrWhiteSpace(searchModel.Email))
-            query = query.Where(x => x.Email.Contains( searchModel.Email));
+        if (!string.IsNullOrWhiteSpace(userSearchModel.Email))
+            query = query.Where(x => x.Email.Contains(userSearchModel.Email));
 
-        return query.ToListAsync();
+        return await query.ToListAsync();
     }
 
     public async Task<OperationResult> ChangeProfilePicture(EditProfilePicture command)
@@ -123,7 +123,7 @@ public class UserApplication : IUserApplication
     {
 
         var operation = new OperationResult();
-        var user =await _context.Users.FirstOrDefaultAsync(x => x.Email == command.UserName);
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == command.UserName);
         if (user == null)
             return "";
         //Compare the inserted password and the saved password
@@ -133,10 +133,10 @@ public class UserApplication : IUserApplication
             return "";
 
 
-        
+
         var authViewModel = new AuthViewModel(user.Id, user.Email);
 
-        
+
 
         return await _authHelper.CreateToken(authViewModel);
     }
@@ -154,7 +154,7 @@ public class UserApplication : IUserApplication
     /// <returns></returns>
     public Task<UserViewModel?> GetUserInfoAsyncBy(long id)
     {
-        return _context.Users.Select(x=>new UserViewModel
+        return _context.Users.Select(x => new UserViewModel
         {
             Id = x.Id,
             Email = x.Email,
@@ -162,6 +162,6 @@ public class UserApplication : IUserApplication
             Name = x.Name,
             LastName = x.LastName,
             AboutMe = x.AboutMe
-        }).FirstOrDefaultAsync(x=>x.Id==id);
+        }).FirstOrDefaultAsync(x => x.Id == id);
     }
 }

@@ -113,13 +113,13 @@ public class UserRelationApplication : IUserRelationApplication
         return query;
     }
 
-    public async Task<OperationResult> Accept(long userIdRequestSentFromIt, long userIdRequestSentToIt)
+    public async Task<OperationResult> Accept(AcceptUserRelation command)
     {
         var result = new OperationResult();
 
 
         var relation = await _context.UserRelations.FirstOrDefaultAsync(x =>
-            x.FkUserAId == userIdRequestSentFromIt && x.FkUserBId == userIdRequestSentToIt); ;
+            x.FkUserAId ==command.userIdRequestSentFromIt && x.FkUserBId ==command.userIdRequestSentToIt); ;
         if (relation == null)
             return result.Failed(ApplicationMessage.NotFound);
         relation.AcceptRelation();
@@ -148,10 +148,12 @@ public class UserRelationApplication : IUserRelationApplication
             .ToListAsync();
     }
 
-    public async Task<int> GetNumberOfMutualFriend(long currentUserId, long friendUserId)
+    public async Task<int> GetNumberOfMutualFriend(NumberOfMutualFriend request)
     {
-        return await GetMutualFriendNumber(currentUserId, friendUserId);
+        return await GetMutualFriendNumber(request.CurrentUserId,request.FriendUserId);
     }
+
+  
 
 
     #region private Methods

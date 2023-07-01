@@ -5,6 +5,7 @@ namespace SocialNetworkApi.Application.Contracts.UserRelationContracts;
 
 /// <summary>
 /// To create request of User relation from user A to user B
+/// User A is current User
 /// </summary>
 public class CreateUserRelation
 {

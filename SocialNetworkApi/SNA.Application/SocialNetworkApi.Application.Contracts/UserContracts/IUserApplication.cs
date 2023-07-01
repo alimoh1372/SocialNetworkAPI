@@ -11,7 +11,7 @@ public interface IUserApplication
     OperationResult Create(CreateUser command);
     OperationResult Edit(EditUser command);
 
-    OperationResult ChangePassword(ChangePassword command);
+    Task<OperationResult> ChangePassword(ChangePassword command);
     EditUser? GetDetails(long id);
 
     /// <summary>
@@ -22,11 +22,11 @@ public interface IUserApplication
     Task<EditProfilePicture?> GetEditProfilePictureDetails(long id);
 
     /// <summary>
-    /// Filter users with the <paramref name="searchModel"/>
+    /// Filter users with the <paramref name="userSearchModel"/>
     /// </summary>
-    /// <param name="searchModel"></param>
+    /// <param name="userSearchModel"></param>
     /// <returns></returns>
-    Task<List<UserViewModel>> SearchAsync(SearchModel searchModel);
+    Task<List<UserViewModel>> SearchAsync(UserSearchModel userSearchModel);
     Task<OperationResult> ChangeProfilePicture(EditProfilePicture command);
     /// <summary>
     /// Get the login information=<paramref name="command"/> 

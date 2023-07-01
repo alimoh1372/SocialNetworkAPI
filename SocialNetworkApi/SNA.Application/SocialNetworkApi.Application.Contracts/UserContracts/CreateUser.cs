@@ -43,9 +43,5 @@ namespace SocialNetworkApi.Application.Contracts.UserContracts;
         [DisplayName("About Me")]
         public string AboutMe { get;  set; }
 
-        [Required]
-        [StringLength(2000)]
-        [DisplayName("Profile picture")]
-        public string ProfilePicture { get;  set; }
     }
 ;

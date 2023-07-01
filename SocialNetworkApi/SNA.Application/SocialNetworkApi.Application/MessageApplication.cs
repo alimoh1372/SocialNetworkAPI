@@ -68,7 +68,7 @@ public class MessageApplication : IMessageApplication
         throw new System.NotImplementedException();
     }
 
-    public async Task<List<MessageViewModel>> LoadChatHistory(long idUserA, long idUserB)
+    public async Task<List<MessageViewModel>> LoadChatHistory(LoadChat request)
     {
 
         return await _context.Messages
@@ -86,8 +86,8 @@ public class MessageApplication : IMessageApplication
                 ToUserProfilePicture = x.ToUser.ProfilePicture,
                 MessageContent = x.MessageContent
             })
-            .Where(x => (x.FkFromUserId == idUserA && x.FkToUserId == idUserB)
-                        || (x.FkFromUserId == idUserB && x.FkToUserId == idUserA))
+            .Where(x => (x.FkFromUserId == request.IdUserACurrentUser && x.FkToUserId == request.IdUserB)
+                        || (x.FkFromUserId == request.IdUserACurrentUser && x.FkToUserId == request.IdUserB))
             .ToListAsync();
 
     }

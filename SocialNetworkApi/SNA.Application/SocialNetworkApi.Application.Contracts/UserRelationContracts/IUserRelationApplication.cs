@@ -30,16 +30,15 @@ public interface IUserRelationApplication
     Task<List<UserWithRequestStatusVieModel>> GetAllUserWithRequestStatus(long currentUserId);
 
     /// <summary>
-    /// Accept the relation by current user=<paramref name="userIdRequestSentFromIt"/> that request sent to it
+    /// Accept the relation by current user that request sent to it
     /// Just the user that request sent to it can accept
     /// </summary>
-    /// <param name="userIdRequestSentFromIt">User id that requested relationship</param>
-    /// <param name="userIdRequestSentToIt">User id that request sent to it</param>
+    /// <param name="command"> that have User id of requested person and a user request sent to</param>
     /// <returns></returns>
-    Task<OperationResult> Accept(long userIdRequestSentFromIt, long userIdRequestSentToIt);
+    Task<OperationResult> Accept(AcceptUserRelation command);
 
     Task<List<UserWithRequestStatusVieModel>> GetFriendsOfUser(long userId);
 
 
-    Task<int> GetNumberOfMutualFriend(long currentUserId, long friendUserId);
+    Task<int> GetNumberOfMutualFriend(NumberOfMutualFriend request);
 }
