@@ -16,7 +16,9 @@ namespace SocialNetworkApi.Infrastructure.EfCore
         {
             
         }
-
+        /// <summary>
+        /// This constructure is for testing project
+        /// </summary>
         public SocialNetworkApiContext() : base()
         {
 

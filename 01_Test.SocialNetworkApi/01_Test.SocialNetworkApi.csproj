@@ -27,7 +27,6 @@
 
   <ItemGroup>
     <Folder Include="DataMock\" />
-    <Folder Include="Application\" />
     <Folder Include="Presentation\" />
   </ItemGroup>
 

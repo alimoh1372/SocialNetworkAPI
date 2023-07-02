@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+﻿
 using _00_Framework.Application;
 using _00_Framework.Domain;
 using _01_Test.SocialNetworkApi.DataMock;
@@ -11,12 +11,29 @@ using SocialNetworkApi.Application;
 using SocialNetworkApi.Application.Contracts.UserContracts;
 using SocialNetworkApi.Domain.UserAgg;
 using SocialNetworkApi.Infrastructure.EfCore;
-using Xunit.Sdk;
+
 
 namespace _01_Test.SocialNetworkApi.Application;
 
 public class UserApplicationTest
 {
+    private readonly Mock<IFileUpload> _mockIFileUpload;
+    private readonly Mock<IAuthHelper> _mockIAuthHelper;
+    private readonly Mock<IPasswordHasher> _mockIPasswordHasher;
+    private readonly Mock<SocialNetworkApiContext> _mockDbContext;
+
+
+    public UserApplicationTest()
+    {
+        _mockIFileUpload = new Mock<IFileUpload>();
+        _mockIAuthHelper = new Mock<IAuthHelper>();
+        _mockIPasswordHasher = new Mock<IPasswordHasher>();
+        _mockDbContext = new Mock<SocialNetworkApiContext>();
+        _mockDbContext.Setup<DbSet<User>>(x => x.Users)
+            .ReturnsDbSet(FakeUserData.GetUsers());
+    }
+
+
     #region CreateUser_Tests
 
     [Fact]
@@ -24,18 +41,18 @@ public class UserApplicationTest
     {
         //Arrange
         OperationResult result = new OperationResult();
-        var mockIFileUpload = new Mock<IFileUpload>();
-        var mockIAuthHelper = new Mock<IAuthHelper>();
-        var mockIPasswordHasher = new Mock<IPasswordHasher>();
-        mockIPasswordHasher.Setup(m => m.Hash(It.IsAny<string>()))
-            .Returns("123456");
-        var mockDbContext = new Mock<SocialNetworkApiContext>();
-        mockDbContext.Setup<DbSet<User>>(x => x.Users)
-            .ReturnsDbSet(FakeUserData.GetUsers());
 
-        var context = mockDbContext.Object;
-        var sut = new UserApplication(context, mockIAuthHelper.Object, mockIPasswordHasher.Object,
-            mockIFileUpload.Object);
+        //Setup password hasher to return a string value=>123456
+        _mockIPasswordHasher.Setup(m => m.Hash(It.IsAny<string>()))
+            .Returns("123456");
+
+        var context = _mockDbContext.Object;
+
+        //Create a System Under Test=SUT=>UserApplication
+        var sut = new UserApplication(context, _mockIAuthHelper.Object, _mockIPasswordHasher.Object,
+            _mockIFileUpload.Object);
+
+        //Create new model of Creating a user
         CreateUser createUser = new CreateUser
         {
             Name = "mohammadz",
@@ -46,11 +63,15 @@ public class UserApplicationTest
             ConfirmPassword = "123456",
             AboutMe = "I'm a good person"
         };
-        var users = FakeUserData.GetUsers().ToList();
-        users.Add(new User(createUser.Name, createUser.LastName
-            , createUser.Email, createUser.BirthDay, createUser.Password
-            , createUser.AboutMe, "/Images/Default.jpg"));
+
         //Act
+
+        //A way to add one user to list
+        //var users = context.Users.ToList();
+        //User user = new User(createUser.Name, createUser.LastName, createUser.Email, createUser.BirthDay,
+        //    createUser.Password, createUser.AboutMe,"");
+        //users.Add(user);
+        //users.Should().HaveCount(3);
         result = sut.Create(createUser);
 
 
@@ -66,18 +87,13 @@ public class UserApplicationTest
     {
         //Arrange
         OperationResult result = new OperationResult();
-        var mockIFileUpload = new Mock<IFileUpload>();
-        var mockIAuthHelper = new Mock<IAuthHelper>();
-        var mockIPasswordHasher = new Mock<IPasswordHasher>();
-        mockIPasswordHasher.Setup(m => m.Hash(It.IsAny<string>()))
+        _mockIPasswordHasher.Setup(m => m.Hash(It.IsAny<string>()))
             .Returns("123456");
-        var mockDbContext = new Mock<SocialNetworkApiContext>();
-        mockDbContext.Setup<DbSet<User>>(x => x.Users)
-            .ReturnsDbSet(FakeUserData.GetUsers());
+        
 
-        var context = mockDbContext.Object;
-        var sut = new UserApplication(context, mockIAuthHelper.Object, mockIPasswordHasher.Object,
-            mockIFileUpload.Object);
+        var context = _mockDbContext.Object;
+        var sut = new UserApplication(context, _mockIAuthHelper.Object, _mockIPasswordHasher.Object,
+            _mockIFileUpload.Object);
         CreateUser createUser = new CreateUser
         {
             Name = "mohammadz",
@@ -88,10 +104,14 @@ public class UserApplicationTest
             ConfirmPassword = "123456",
             AboutMe = "I'm a good person"
         };
-        var users = FakeUserData.GetUsers().ToList();
-        users.Add(new User(createUser.Name, createUser.LastName
-            , createUser.Email, createUser.BirthDay, createUser.Password
-            , createUser.AboutMe, "/Images/Default.jpg"));
+
+        //A way to test number of user after added
+
+        //var users = FakeUserData.GetUsers().ToList();
+        //users.Add(new User(createUser.Name, createUser.LastName
+        //    , createUser.Email, createUser.BirthDay, createUser.Password
+        //    , createUser.AboutMe, "/Images/Default.jpg"));
+        //users.Should().HaveCount(2);
         //Act
         result = sut.Create(createUser);
 
@@ -111,18 +131,15 @@ public class UserApplicationTest
     {
         //Arrange
         OperationResult result = new OperationResult();
-        var mockIFileUpload = new Mock<IFileUpload>();
-        var mockIAuthHelper = new Mock<IAuthHelper>();
-        var mockIPasswordHasher = new Mock<IPasswordHasher>();
-        mockIPasswordHasher.Setup(m => m.Hash(It.IsAny<string>()))
-            .Returns("123456");
-        var mockDbContext = new Mock<SocialNetworkApiContext>();
-        mockDbContext.Setup<DbSet<User>>(x => x.Users)
-            .ReturnsDbSet(FakeUserData.GetUsers());
 
-        var context = mockDbContext.Object;
-        var sut = new UserApplication(context, mockIAuthHelper.Object, mockIPasswordHasher.Object,
-            mockIFileUpload.Object);
+        _mockIPasswordHasher.Setup(m => m.Hash(It.IsAny<string>()))
+            .Returns("123456");
+
+        var context = _mockDbContext.Object;
+        var sut = new UserApplication(context, _mockIAuthHelper.Object,
+            _mockIPasswordHasher.Object,
+            _mockIFileUpload.Object);
+
         ChangePassword changePassword = new ChangePassword
         {
             Id = 0,
@@ -138,24 +155,20 @@ public class UserApplicationTest
         result.IsSuccedded.Should().BeTrue();
         result.Message.Should().NotBeNullOrWhiteSpace();
         context.Users.Should().HaveCount(2);
+
     }
     [Fact]
     public async Task ChangePassword_WithInValidCommand_ReturnSucceededFalse()
     {
         //Arrange
         OperationResult result = new OperationResult();
-        var mockIFileUpload = new Mock<IFileUpload>();
-        var mockIAuthHelper = new Mock<IAuthHelper>();
-        var mockIPasswordHasher = new Mock<IPasswordHasher>();
-        mockIPasswordHasher.Setup(m => m.Hash(It.IsAny<string>()))
+       
+        _mockIPasswordHasher.Setup(m => m.Hash(It.IsAny<string>()))
             .Returns("123456");
-        var mockDbContext = new Mock<SocialNetworkApiContext>();
-        mockDbContext.Setup<DbSet<User>>(x => x.Users)
-            .ReturnsDbSet(FakeUserData.GetUsers());
-
-        var context = mockDbContext.Object;
-        var sut = new UserApplication(context, mockIAuthHelper.Object, mockIPasswordHasher.Object,
-            mockIFileUpload.Object);
+        
+        var context = _mockDbContext.Object;
+        var sut = new UserApplication(context, _mockIAuthHelper.Object, _mockIPasswordHasher.Object,
+            _mockIFileUpload.Object);
         ChangePassword changePassword = new ChangePassword
         {
             Id = 0,
@@ -183,17 +196,9 @@ public class UserApplicationTest
     public void GetDetails_WithValidId_ReturnAnEditModel()
     {
         //Arrange
-
-        var mockIFileUpload = new Mock<IFileUpload>();
-        var mockIAuthHelper = new Mock<IAuthHelper>();
-        var mockIPasswordHasher = new Mock<IPasswordHasher>();
-        var mockDbContext = new Mock<SocialNetworkApiContext>();
-        mockDbContext.Setup<DbSet<User>>(x => x.Users)
-            .ReturnsDbSet(FakeUserData.GetUsers());
-
-        var context = mockDbContext.Object;
-        var sut = new UserApplication(context, mockIAuthHelper.Object, mockIPasswordHasher.Object,
-            mockIFileUpload.Object);
+        var context = _mockDbContext.Object;
+        var sut = new UserApplication(context, _mockIAuthHelper.Object, _mockIPasswordHasher.Object,
+            _mockIFileUpload.Object);
 
 
         //Act
@@ -212,17 +217,9 @@ public class UserApplicationTest
     public void GetDetails_WithInValidId_ReturnNull()
     {
         //Arrange
-
-        var mockIFileUpload = new Mock<IFileUpload>();
-        var mockIAuthHelper = new Mock<IAuthHelper>();
-        var mockIPasswordHasher = new Mock<IPasswordHasher>();
-        var mockDbContext = new Mock<SocialNetworkApiContext>();
-        mockDbContext.Setup<DbSet<User>>(x => x.Users)
-            .ReturnsDbSet(FakeUserData.GetUsers());
-
-        var context = mockDbContext.Object;
-        var sut = new UserApplication(context, mockIAuthHelper.Object, mockIPasswordHasher.Object,
-            mockIFileUpload.Object);
+        var context = _mockDbContext.Object;
+        var sut = new UserApplication(context, _mockIAuthHelper.Object, _mockIPasswordHasher.Object,
+            _mockIFileUpload.Object);
 
 
         //Act
@@ -245,17 +242,9 @@ public class UserApplicationTest
     public async Task GetEditProfilePictureDetails_WithValidId_ReturnEditProfilePicture()
     {
         //Arrange
-
-        var mockIFileUpload = new Mock<IFileUpload>();
-        var mockIAuthHelper = new Mock<IAuthHelper>();
-        var mockIPasswordHasher = new Mock<IPasswordHasher>();
-        var mockDbContext = new Mock<SocialNetworkApiContext>();
-        mockDbContext.Setup<DbSet<User>>(x => x.Users)
-            .ReturnsDbSet(FakeUserData.GetUsers());
-
-        var context = mockDbContext.Object;
-        var sut = new UserApplication(context, mockIAuthHelper.Object, mockIPasswordHasher.Object,
-            mockIFileUpload.Object);
+        var context = _mockDbContext.Object;
+        var sut = new UserApplication(context, _mockIAuthHelper.Object, _mockIPasswordHasher.Object,
+            _mockIFileUpload.Object);
 
 
         //Act
@@ -275,17 +264,9 @@ public class UserApplicationTest
     public async Task GetEditProfilePictureDetails_WithInValidId_ReturnNull()
     {
         //Arrange
-
-        var mockIFileUpload = new Mock<IFileUpload>();
-        var mockIAuthHelper = new Mock<IAuthHelper>();
-        var mockIPasswordHasher = new Mock<IPasswordHasher>();
-        var mockDbContext = new Mock<SocialNetworkApiContext>();
-        mockDbContext.Setup<DbSet<User>>(x => x.Users)
-            .ReturnsDbSet(FakeUserData.GetUsers());
-
-        var context = mockDbContext.Object;
-        var sut = new UserApplication(context, mockIAuthHelper.Object, mockIPasswordHasher.Object,
-            mockIFileUpload.Object);
+        var context = _mockDbContext.Object;
+        var sut = new UserApplication(context, _mockIAuthHelper.Object, _mockIPasswordHasher.Object,
+            _mockIFileUpload.Object);
 
 
         //Act
@@ -308,17 +289,10 @@ public class UserApplicationTest
     public async Task SearchAsync_WithEmptyModel_Return2Element()
     {
         //Arrange
+        var context = _mockDbContext.Object;
+        var sut = new UserApplication(context, _mockIAuthHelper.Object, _mockIPasswordHasher.Object,
+            _mockIFileUpload.Object);
 
-        var mockIFileUpload = new Mock<IFileUpload>();
-        var mockIAuthHelper = new Mock<IAuthHelper>();
-        var mockIPasswordHasher = new Mock<IPasswordHasher>();
-        var mockDbContext = new Mock<SocialNetworkApiContext>();
-        mockDbContext.Setup<DbSet<User>>(x => x.Users)
-            .ReturnsDbSet(FakeUserData.GetUsers());
-
-        var context = mockDbContext.Object;
-        var sut = new UserApplication(context, mockIAuthHelper.Object, mockIPasswordHasher.Object,
-            mockIFileUpload.Object);
         UserSearchModel searchModel = new UserSearchModel();
 
 
@@ -329,7 +303,6 @@ public class UserApplicationTest
         //Assert
         result.Should().NotBeNullOrEmpty();
         result.Should().HaveCount(2);
-
     }
 
 
@@ -337,17 +310,9 @@ public class UserApplicationTest
     public async Task SearchAsync_WithNonEmptyModel_Return2orLessThan2Element()
     {
         //Arrange
-
-        var mockIFileUpload = new Mock<IFileUpload>();
-        var mockIAuthHelper = new Mock<IAuthHelper>();
-        var mockIPasswordHasher = new Mock<IPasswordHasher>();
-        var mockDbContext = new Mock<SocialNetworkApiContext>();
-        mockDbContext.Setup<DbSet<User>>(x => x.Users)
-            .ReturnsDbSet(FakeUserData.GetUsers());
-
-        var context = mockDbContext.Object;
-        var sut = new UserApplication(context, mockIAuthHelper.Object, mockIPasswordHasher.Object,
-            mockIFileUpload.Object);
+        var context = _mockDbContext.Object;
+        var sut = new UserApplication(context, _mockIAuthHelper.Object, _mockIPasswordHasher.Object,
+            _mockIFileUpload.Object);
         UserSearchModel searchModel = new UserSearchModel
         {
             Email = "ahmad"
@@ -361,9 +326,7 @@ public class UserApplicationTest
         //Assert
         result.Should().HaveCountLessOrEqualTo(2);
         result.Should().AllBeOfType<UserViewModel>();
-
-
-
+        
     }
 
     #endregion
@@ -375,17 +338,14 @@ public class UserApplicationTest
     {
         //Arrange
 
-        var mockIFileUpload = new Mock<IFileUpload>();
-        mockIFileUpload.Setup(_ => _.UploadFile(It.IsAny<IFormFile>(), It.IsAny<string>())).Returns("/pathOfnewPicture");
-        var mockIAuthHelper = new Mock<IAuthHelper>();
-        var mockIPasswordHasher = new Mock<IPasswordHasher>();
-        var mockDbContext = new Mock<SocialNetworkApiContext>();
-        mockDbContext.Setup<DbSet<User>>(x => x.Users)
-            .ReturnsDbSet(FakeUserData.GetUsers());
+        //Setup upload file to return path of file after saving on server
+        _mockIFileUpload.Setup(_ => _.UploadFile(It.IsAny<IFormFile>(),
+            It.IsAny<string>())).Returns("/pathOfnewPicture");
 
-        var context = mockDbContext.Object;
-        var sut = new UserApplication(context, mockIAuthHelper.Object, mockIPasswordHasher.Object,
-            mockIFileUpload.Object);
+        var context = _mockDbContext.Object;
+        var sut = new UserApplication(context, _mockIAuthHelper.Object, _mockIPasswordHasher.Object,
+            _mockIFileUpload.Object);
+
         EditProfilePicture editProfile = new EditProfilePicture
         {
             Id = 0,
@@ -401,7 +361,6 @@ public class UserApplicationTest
         //Assert
         result.IsSuccedded.Should().BeTrue();
         result.Message.Should().NotBeNullOrWhiteSpace();
-
     }
 
 
@@ -410,17 +369,12 @@ public class UserApplicationTest
     {
         //Arrange
 
-        var mockIFileUpload = new Mock<IFileUpload>();
-        mockIFileUpload.Setup(_ => _.UploadFile(It.IsAny<IFormFile>(), It.IsAny<string>())).Returns("/pathOfnewPicture");
-        var mockIAuthHelper = new Mock<IAuthHelper>();
-        var mockIPasswordHasher = new Mock<IPasswordHasher>();
-        var mockDbContext = new Mock<SocialNetworkApiContext>();
-        mockDbContext.Setup<DbSet<User>>(x => x.Users)
-            .ReturnsDbSet(FakeUserData.GetUsers());
+        _mockIFileUpload.Setup(_ => _.UploadFile(It.IsAny<IFormFile>(), It.IsAny<string>())).Returns("/pathOfnewPicture");
+       
+        var context = _mockDbContext.Object;
+        var sut = new UserApplication(context, _mockIAuthHelper.Object, _mockIPasswordHasher.Object,
+            _mockIFileUpload.Object);
 
-        var context = mockDbContext.Object;
-        var sut = new UserApplication(context, mockIAuthHelper.Object, mockIPasswordHasher.Object,
-            mockIFileUpload.Object);
         EditProfilePicture editProfile = new EditProfilePicture
         {
             Id = 1,
@@ -449,19 +403,17 @@ public class UserApplicationTest
     {
         //Arrange
 
-        var mockIFileUpload = new Mock<IFileUpload>();
-        var mockIAuthHelper = new Mock<IAuthHelper>();
-        mockIAuthHelper.Setup(m => m.CreateToken(It.IsAny<AuthViewModel>()))
+        _mockIAuthHelper.Setup(m => m.CreateToken(It.IsAny<AuthViewModel>()))
             .ReturnsAsync("ThisIsAFakeToken.ToKeepMeInside.Signature");
-        var mockIPasswordHasher = new Mock<IPasswordHasher>();
-        mockIPasswordHasher.Setup(m => m.Check(It.IsAny<string>(), It.IsAny<string>())).Returns((true, true));
-        var mockDbContext = new Mock<SocialNetworkApiContext>();
-        mockDbContext.Setup<DbSet<User>>(x => x.Users)
-            .ReturnsDbSet(FakeUserData.GetUsers());
 
-        var context = mockDbContext.Object;
-        var sut = new UserApplication(context, mockIAuthHelper.Object, mockIPasswordHasher.Object,
-            mockIFileUpload.Object);
+        _mockIPasswordHasher.Setup(m => 
+            m.Check(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns((true, true));
+
+       
+        var context = _mockDbContext.Object;
+        var sut = new UserApplication(context, _mockIAuthHelper.Object, _mockIPasswordHasher.Object,
+            _mockIFileUpload.Object);
         var login = new Login
         {
             UserName = "ali@gmail.com",
@@ -484,20 +436,15 @@ public class UserApplicationTest
     public async Task Login_WithWrongUserPassword_ReturnToken()
     {
         //Arrange
-
-        var mockIFileUpload = new Mock<IFileUpload>();
-        var mockIAuthHelper = new Mock<IAuthHelper>();
-        mockIAuthHelper.Setup(m => m.CreateToken(It.IsAny<AuthViewModel>()))
+        
+        _mockIAuthHelper.Setup(m => m.CreateToken(It.IsAny<AuthViewModel>()))
             .ReturnsAsync("ThisIsAFakeToken.ToKeepMeInside.Signature");
-        var mockIPasswordHasher = new Mock<IPasswordHasher>();
-        mockIPasswordHasher.Setup(m => m.Check(It.IsAny<string>(), It.IsAny<string>())).Returns((false, false));
-        var mockDbContext = new Mock<SocialNetworkApiContext>();
-        mockDbContext.Setup<DbSet<User>>(x => x.Users)
-            .ReturnsDbSet(FakeUserData.GetUsers());
 
-        var context = mockDbContext.Object;
-        var sut = new UserApplication(context, mockIAuthHelper.Object, mockIPasswordHasher.Object,
-            mockIFileUpload.Object);
+        _mockIPasswordHasher.Setup(m => m.Check(It.IsAny<string>(), It.IsAny<string>())).Returns((false, false));
+        
+        var context = _mockDbContext.Object;
+        var sut = new UserApplication(context, _mockIAuthHelper.Object, _mockIPasswordHasher.Object,
+            _mockIFileUpload.Object);
         var login = new Login
         {
             UserName = "ali@gmail.com",
@@ -525,17 +472,9 @@ public class UserApplicationTest
     public async Task GetUserInfoAsyncBy_WithValidId_ReturnUserViewModel()
     {
         //Arrange
-
-        var mockIFileUpload = new Mock<IFileUpload>();
-        var mockIAuthHelper = new Mock<IAuthHelper>();
-        var mockIPasswordHasher = new Mock<IPasswordHasher>();
-        var mockDbContext = new Mock<SocialNetworkApiContext>();
-        mockDbContext.Setup<DbSet<User>>(x => x.Users)
-            .ReturnsDbSet(FakeUserData.GetUsers());
-
-        var context = mockDbContext.Object;
-        var sut = new UserApplication(context, mockIAuthHelper.Object, mockIPasswordHasher.Object,
-            mockIFileUpload.Object);
+        var context = _mockDbContext.Object;
+        var sut = new UserApplication(context, _mockIAuthHelper.Object, _mockIPasswordHasher.Object,
+            _mockIFileUpload.Object);
 
 
 
@@ -549,7 +488,6 @@ public class UserApplicationTest
         result.Name.Should().Be("ali");
         result.LastName.Should().Be("mohammadzade");
         result.Email.Should().Be("ali@gmail.com");
-
     }
 
 
@@ -559,16 +497,9 @@ public class UserApplicationTest
     {
         //Arrange
 
-        var mockIFileUpload = new Mock<IFileUpload>();
-        var mockIAuthHelper = new Mock<IAuthHelper>();
-        var mockIPasswordHasher = new Mock<IPasswordHasher>();
-        var mockDbContext = new Mock<SocialNetworkApiContext>();
-        mockDbContext.Setup<DbSet<User>>(x => x.Users)
-            .ReturnsDbSet(FakeUserData.GetUsers());
-
-        var context = mockDbContext.Object;
-        var sut = new UserApplication(context, mockIAuthHelper.Object, mockIPasswordHasher.Object,
-            mockIFileUpload.Object);
+        var context = _mockDbContext.Object;
+        var sut = new UserApplication(context, _mockIAuthHelper.Object, _mockIPasswordHasher.Object,
+            _mockIFileUpload.Object);
 
 
 
@@ -587,5 +518,5 @@ public class UserApplicationTest
 
 
 
-    
+
 }
