@@ -9,12 +9,17 @@ namespace SocialNetworkApi.Infrastructure.EfCore
 {
     public class SocialNetworkApiContext:DbContext
     {
-        public DbSet<User> Users { get; set; }
-        public DbSet<UserRelation> UserRelations { get; set; }
-        public DbSet<Message> Messages { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<UserRelation> UserRelations { get; set; }
+        public virtual DbSet<Message> Messages { get; set; }
         public SocialNetworkApiContext(DbContextOptions<SocialNetworkApiContext> options):base(options)
         {
             
+        }
+
+        public SocialNetworkApiContext() : base()
+        {
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

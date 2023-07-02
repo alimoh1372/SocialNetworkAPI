@@ -154,14 +154,16 @@ public class UserApplication : IUserApplication
     /// <returns></returns>
     public Task<UserViewModel?> GetUserInfoAsyncBy(long id)
     {
-        return _context.Users.Select(x => new UserViewModel
-        {
-            Id = x.Id,
-            Email = x.Email,
-            ProfilePicture = x.ProfilePicture,
-            Name = x.Name,
-            LastName = x.LastName,
-            AboutMe = x.AboutMe
-        }).FirstOrDefaultAsync(x => x.Id == id);
+        return _context.Users
+            .Select(x => new UserViewModel
+            {
+                Id = x.Id,
+                Email = x.Email,
+                ProfilePicture = x.ProfilePicture,
+                Name = x.Name,
+                LastName = x.LastName,
+                AboutMe = x.AboutMe
+            })
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 }
