@@ -24,8 +24,9 @@ public class UserRelationApplication : IUserRelationApplication
             return result.Failed(ApplicationMessage.CantSelfRequest);
         //check Duplication of request
         if (_context.UserRelations.Any(x =>
-                x.FkUserAId == command.FkUserAId && x.FkUserBId == command.FkUserBId))
-            return result.Failed(ApplicationMessage.Duplication);
+                x.FkUserAId == command.FkUserAId && x.FkUserBId == command.FkUserBId ||
+                x.FkUserBId == command.FkUserBId && x.FkUserAId == command.FkUserAId))
+             return result.Failed(ApplicationMessage.Duplication);
 
         //create user relation instance
         UserRelation friendShipRequest = new UserRelation(command.FkUserAId, command.FkUserBId, command.RelationRequestMessage);

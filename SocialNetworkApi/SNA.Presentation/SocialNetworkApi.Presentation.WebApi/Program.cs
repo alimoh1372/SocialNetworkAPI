@@ -13,8 +13,8 @@ using SocialNetworkApi.Presentation.WebApi.Tools;
 
 // Add services to the container.
 var builder = WebApplication.CreateBuilder(args);
-string connectionString = builder.Configuration.GetConnectionString("socialNetworkApiConnectionStringHome");
-//string connectionString = builder.Configuration.GetConnectionString("socialNetworkApiConnectionStringNoc");
+//string connectionString = builder.Configuration.GetConnectionString("socialNetworkApiConnectionStringHome");
+string connectionString = builder.Configuration.GetConnectionString("socialNetworkApiConnectionStringNoc");
 Configuration.Configure(builder.Services,connectionString);
 
 //wire up and register the needed services

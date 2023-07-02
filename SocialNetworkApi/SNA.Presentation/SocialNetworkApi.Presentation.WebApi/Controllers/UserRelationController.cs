@@ -114,12 +114,11 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         //}
 
         /// <summary>
-        /// Accept the relation by current user=<paramref name="userIdRequestSentToIt"/> that request sent to it
+        /// Accept the relation by current user=<paramref name="command"/> that request sent to it
         /// Just the user that request sent to it can accept
         /// </summary>
-        /// <param name="userIdRequestSentFromIt">User id that requested relationship</param>
-        /// <param name="userIdRequestSentToIt">User id that request sent to it</param>
-        /// <returns> if model <paramref name="userIdRequestSentFromIt"/> and <see cref="userIdRequestSentToIt"/> values is valid so return  <see cref="OperationResult"/> with succeed status </returns>
+        /// <param name="command">there is current user id and that user request to him</param>
+        /// <returns> if model <paramref name="command.userIdRequestSentFromIt"/> and <paramref name="command.userIdRequestSentToIt"/>  values is valid so return  <see cref="OperationResult"/> with succeed status </returns>
         /// <response code="200">return succeed message</response>
         /// <response code="400">return error message for request model</response>
         /// <response code="401">return Unauthorized response when you didn't have access permission to this section</response>
@@ -221,7 +220,7 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
 
 
         /// <summary>
-        /// Get number of mutual friend of 
+        /// Get list of friends 
         /// </summary>
         /// <param name="userId">Id of user that we want get friend's list</param>
         /// <returns>List of <see cref="UserWithRequestStatusVieModel"/> that friend with <see cref="userId"/> or <see langword="null"/></returns>
@@ -274,7 +273,12 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
 
                 return BadRequest(ErrorMessages);
             }
-            return Ok( await _userRelationApplication.GetAllUserWithRequestStatus(userId.Id));
+            var authModel = await _authHelper.GetUserInfo();
+            if (authModel == null)
+                return Unauthorized("Please first login");
+            if (authModel.Id != userId.Id)
+                return StatusCode(StatusCodes.Status403Forbidden, ValidatingMessage.ForbiddenToAccess);
+            return Ok( await _userRelationApplication.GetFriendsOfUser(userId.Id));
         }
 
 

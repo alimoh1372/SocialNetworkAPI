@@ -10,7 +10,7 @@ public class EditMessage
 {
     [Required]
     public long Id { get; set; }
-    
+    [Required]
     public long FkFromUserId { get; set; }
 
     public long FkToUserId { get; set; }

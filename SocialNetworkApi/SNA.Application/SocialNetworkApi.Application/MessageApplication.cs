@@ -27,6 +27,13 @@ public class MessageApplication : IMessageApplication
         if (command.FkToUserId == command.FkFromUserId)
             return result.Failed(ApplicationMessage.CantSelfRequest);
 
+        //check to deny send message to non-friend users
+        if (!_context.UserRelations.Any(x =>
+                x.FkUserAId == command.FkFromUserId && x.FkUserBId == command.FkToUserId ||
+                x.FkUserBId == command.FkFromUserId && x.FkUserAId == command.FkToUserId
+                                                    && x.Approve == true))
+            return result.Failed(ApplicationMessage.CantSendToNonFriendUsers);
+
         Message message = new Message(command.FkFromUserId, command.FkToUserId, command.MessageContent);
 
         //Add to database
@@ -34,7 +41,7 @@ public class MessageApplication : IMessageApplication
 
 
         _context.SaveChanges();
-        
+
 
         return result.Succedded();
 
@@ -43,11 +50,15 @@ public class MessageApplication : IMessageApplication
     public OperationResult Edit(EditMessage command)
     {
         var operationResult = new OperationResult();
-        var message = _context.Messages.FirstOrDefault(x=>x.Id==command.Id);
+        var message = _context.Messages.FirstOrDefault(x => x.Id == command.Id);
+
         if (message == null)
             return operationResult.Failed(ApplicationMessage.NotFound);
+        if (message.FkFromUserId != command.FkFromUserId)
+            return operationResult.Failed(ValidatingMessage.ForbiddenToAccess);
         if (message.CreationDate.AddMinutes(+3) < DateTime.Now)
             return operationResult.Failed(ApplicationMessage.EditTimeOver);
+        
         message.Edit(command.MessageContent);
         _context.SaveChanges();
         return operationResult.Succedded();
@@ -87,7 +98,7 @@ public class MessageApplication : IMessageApplication
                 MessageContent = x.MessageContent
             })
             .Where(x => (x.FkFromUserId == request.IdUserACurrentUser && x.FkToUserId == request.IdUserB)
-                        || (x.FkFromUserId == request.IdUserACurrentUser && x.FkToUserId == request.IdUserB))
+                                   || (x.FkFromUserId == request.IdUserB && x.FkToUserId == request.IdUserACurrentUser))
             .ToListAsync();
 
     }
@@ -116,12 +127,12 @@ public class MessageApplication : IMessageApplication
     public async Task<EditMessage?> GetEditMessageBy(long id)
     {
         return await _context.Messages.Select(x => new EditMessage
-            {
-                Id = x.Id,
-                FkFromUserId = x.FkFromUserId,
-                FkToUserId = x.FkToUserId,
-                MessageContent = x.MessageContent
-            })
+        {
+            Id = x.Id,
+            FkFromUserId = x.FkFromUserId,
+            FkToUserId = x.FkToUserId,
+            MessageContent = x.MessageContent
+        })
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
