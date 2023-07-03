@@ -26,14 +26,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Presentation\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\00_Framework\00_Framework.csproj" />
     <ProjectReference Include="..\SocialNetworkApi\SNA.Application\SocialNetworkApi.Application\SocialNetworkApi.Application.csproj" />
     <ProjectReference Include="..\SocialNetworkApi\SNA.Domain\SocialNetworkApi.Domain\SocialNetworkApi.Domain.csproj" />
     <ProjectReference Include="..\SocialNetworkApi\SNA.Infrastructure\SocialNetworkApi.Infrastructure.Efcore\SocialNetworkApi.Infrastructure.EfCore.csproj" />
+    <ProjectReference Include="..\SocialNetworkApi\SNA.Presentation\SocialNetworkApi.Presentation.WebApi\SocialNetworkApi.Presentation.WebApi.csproj" />
   </ItemGroup>
 
 </Project>
