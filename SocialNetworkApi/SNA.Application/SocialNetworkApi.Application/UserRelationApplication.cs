@@ -146,6 +146,7 @@ public class UserRelationApplication : IUserRelationApplication
                 TimeOffset = x.CreationDate,
                 ProfilePicture = x.FkUserAId == userId ? x.UserB.ProfilePicture : x.UserA.ProfilePicture,
             })
+            .AsNoTracking()
             .ToListAsync();
     }
 

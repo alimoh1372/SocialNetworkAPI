@@ -1,4 +1,5 @@
-﻿using SocialNetworkApi.Domain.UserAgg;
+﻿using Moq.EntityFrameworkCore.DbAsyncQueryProvider;
+using SocialNetworkApi.Domain.UserAgg;
 
 namespace _01_Test.SocialNetworkApi.DataMock;
 
