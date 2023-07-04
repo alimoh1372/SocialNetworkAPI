@@ -48,7 +48,7 @@ public class MessageController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SendSend(SendMessage command)
+    public async Task<IActionResult> Send(SendMessage command)
     {
         var result = new OperationResult();
         if (!ModelState.IsValid)
