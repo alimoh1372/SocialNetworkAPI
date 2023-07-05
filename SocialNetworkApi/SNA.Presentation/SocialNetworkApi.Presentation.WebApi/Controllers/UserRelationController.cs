@@ -41,11 +41,11 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         /// <response code="403">return Deny to access content source because didn't have permission</response>
         /// <response code="500">return internal server error </response>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(List<string>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         public async  Task<IActionResult> CreateRelation(CreateUserRelation command)
         {
             var result = new OperationResult();
@@ -125,11 +125,11 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         /// <response code="403">return Deny to access content source because didn't have permission</response>
         /// <response code="500">return internal server error </response>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(OperationResult))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest,Type = typeof(List<string>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized,Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden,Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError,Type = typeof(OperationResult))]
         public async Task<IActionResult> AcceptRelation([FromQuery]AcceptUserRelation command)
         {
             var result = new OperationResult();
@@ -138,7 +138,7 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
                 var ErrorMessages = ModelState.SelectMany(x => x.Value.Errors)
                     .Select(x => x.ErrorMessage).ToList();
 
-                return BadRequest(ErrorMessages.ToString());
+                return BadRequest(ErrorMessages);
             }
             var authMode =await  _authHelper.GetUserInfo();
             if (authMode == null)
@@ -194,11 +194,11 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         /// <response code="403">return Deny to access content source because didn't have permission</response>
         /// <response code="500">return internal server error </response>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(List<UserWithRequestStatusVieModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest,Type = typeof(List<string>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized,Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden,Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError,Type = typeof(string))]
         public async Task<IActionResult> GetAllUserWithRequestStatus([FromQuery]IdModelArgument<long> currentUserId)
         {
             if (!ModelState.IsValid)
@@ -259,11 +259,11 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         /// <response code="401">return Unauthorized response when you didn't have access permission to this section</response>
         /// <response code="500">return internal server error </response>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(List<UserWithRequestStatusVieModel>))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest,Type = typeof(List<string>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized,Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden,Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError,Type = typeof(string))]
         public async Task<IActionResult> GetFriendsOfUser([FromQuery]IdModelArgument<long> userId)
         {
             if (!ModelState.IsValid)
@@ -304,10 +304,10 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         /// <response code="403">return Deny to access content source because didn't have permission</response>
         /// <response code="500">return internal server error </response>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(int))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest,Type = typeof(List<string>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized,Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError,Type = typeof(string))]
         public async Task<IActionResult> GetNumberOfMutualFriend([FromQuery]NumberOfMutualFriend request)
         {
             if (!ModelState.IsValid)

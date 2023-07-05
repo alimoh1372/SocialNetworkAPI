@@ -1,4 +1,5 @@
-﻿using _00_Framework.Application;
+﻿using System.Globalization;
+using _00_Framework.Application;
 using _00_Framework.Application.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -43,11 +44,11 @@ public class MessageController : ControllerBase
     /// <response code="403">return Deny to access content source because didn't have permission</response>
     /// <response code="500">return internal server error </response>
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(OperationResult))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest,Type = typeof(List<string>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized,Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status403Forbidden,Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError,Type = typeof(string))]
     public async Task<IActionResult> Send(SendMessage command)
     {
         var result = new OperationResult();
@@ -93,11 +94,11 @@ public class MessageController : ControllerBase
     /// <response code="403">return Deny to access content source because didn't have permission</response>
     /// <response code="500">return internal server error </response>
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(OperationResult))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest,Type = typeof(List<string>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized,Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status403Forbidden,Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError,Type = typeof(OperationResult))]
     public async Task<IActionResult> Edit(EditMessage command)
     {
         var result = new OperationResult();
@@ -169,11 +170,11 @@ public class MessageController : ControllerBase
     /// <response code="403">return Deny to access content source because didn't have permission</response>
     /// <response code="500">return internal server error </response>
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(List<MessageViewModel>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest,Type = typeof(List<string>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized,Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status403Forbidden,Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError,Type = typeof(string))]
     public async Task<IActionResult> LoadChatHistory([FromQuery]LoadChat request)
     {
         if (!ModelState.IsValid)
@@ -195,7 +196,7 @@ public class MessageController : ControllerBase
 
 
     /// <summary>
-    /// Get The edit model=<see cref="EditMessage"/> 
+    /// Get The edit model= EditMessage /> 
     /// </summary>
     /// <param name="id">id of message you want to edit</param>
     /// <returns><see langword="null"/> if there isn't any message with <paramref name="id"/></returns>
@@ -219,11 +220,11 @@ public class MessageController : ControllerBase
     /// <response code="403">return Deny to access content source because didn't have permission</response>
     /// <response code="500">return internal server error </response>
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(EditMessage))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest,Type = typeof(List<string>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized,Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status403Forbidden,Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError,Type = typeof(string))]
     public async Task<IActionResult> GetEditMessageBy([FromQuery]IdModelArgument<long> idModel)
     {
         if (!ModelState.IsValid)
@@ -244,7 +245,7 @@ public class MessageController : ControllerBase
 
 
     /// <summary>
-    /// Get Message viewmodel=<see cref="MessageViewModel"/> 
+    /// Get Message viewmodel= MessageViewModel 
     /// </summary>
     /// <param name="id">id of message you want to get</param>
     /// <returns><see langword="null"/> if there isn't any message with <paramref name="id"/></returns>
@@ -273,11 +274,11 @@ public class MessageController : ControllerBase
     /// <response code="403">return Deny to access content source because didn't have permission</response>
     /// <response code="500">return internal server error </response>
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(MessageViewModel))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest,Type = typeof(List<string>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized,Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status403Forbidden,Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError,Type = typeof(string))]
     public async Task<IActionResult> GetMessageViewModelBy([FromQuery]IdModelArgument<long> idModel)
     {
         if (!ModelState.IsValid)

@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Net.Mime;
+using System.Text;
 using _00_Framework.Application;
 using _00_Framework.Application.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -47,9 +49,9 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         /// <response code="500">return internal server error </response>
         [HttpPost]
         [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, Type = typeof(OperationResult))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(List<string>))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         public IActionResult SignUp(CreateUser command)
         {
             var result = new OperationResult();
@@ -91,11 +93,11 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         /// <response code="403">return Deny to access content source because didn't have permission</response>
         /// <response code="500">return internal server error </response>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(statusCode:StatusCodes.Status200OK,Type = typeof(OperationResult))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest,Type = typeof(List<string>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized,Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden,Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError,Type = typeof(string))]
         public async Task<IActionResult> ChangePassword(ChangePassword command)
         {
             var result = new OperationResult();
@@ -140,11 +142,11 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         /// <response code="403">return Deny to access content source because didn't have permission</response>
         /// <response code="500">return internal server error </response>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, Type = typeof(OperationResult))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(List<string>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         public async Task<IActionResult> ChangeProfilePicture([FromForm] EditProfilePicture command)
         {
             var result = new OperationResult();
@@ -189,13 +191,11 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         ///      "Password": "IFormFile.jpg"
         ///     }
         /// </remarks>
-        /// <response code="200">return succeed message</response>
+        /// <response code="200">return a JWT token or <code>""</code> empty string if the user or password not match</response>
         /// <response code="400">return error message for request model</response>
-        /// <response code="500">return internal server error </response>
         [HttpPost,AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(List<string>))]
         public async Task<IActionResult> Login(Login command)
         {
             //Validation
@@ -238,11 +238,11 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         /// <response code="403">return Deny to access content source because didn't have permission</response>
         /// <response code="500">return internal server error </response>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status200OK,Type =typeof(EditProfilePicture))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(List<string>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(string))]
         public async Task<IActionResult> GetEditProfilePictureDetails([FromQuery]IdModelArgument<long> idModel)
         {
             if (!ModelState.IsValid)
@@ -250,7 +250,7 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
                 var ErrorMessages = ModelState.SelectMany(x => x.Value.Errors)
                     .Select(x => x.ErrorMessage).ToList();
 
-                return BadRequest(ErrorMessages.ToString());
+                return BadRequest(ErrorMessages);
             }
             var authMode =await _authHelper.GetUserInfo();
             if (authMode == null)
@@ -263,7 +263,7 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
 
 
         /// <summary>
-        /// Get list of <see cref="UserViewModel"/> that contain <paramref name="userSearchModel"/> items
+        /// Get list of "UserViewModel" that contain <paramref name="userSearchModel"/> items
         /// </summary>
         /// <param name="userSearchModel">search in emails </param>
         /// <returns>an <see cref="EditProfilePicture"/> or <see langword="null"/></returns>
@@ -295,7 +295,7 @@ namespace SocialNetworkApi.Presentation.WebApi.Controllers
         /// </remarks>
         /// <response code="401">return Unauthorized response when you didn't have access permission to this section</response>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(string))]
         public async Task<List<UserViewModel>> SearchAsync([FromQuery]UserSearchModel userSearchModel)
         {
             return await _userApplication.SearchAsync(userSearchModel);

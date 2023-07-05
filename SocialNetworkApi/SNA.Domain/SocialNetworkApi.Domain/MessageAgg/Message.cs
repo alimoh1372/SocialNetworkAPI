@@ -43,7 +43,8 @@ public class Message : EntityBase
     /// <param name="messageContent">New message text to edit</param>
     public void Edit(string messageContent)
     {
-        MessageContent = messageContent;
+        if (CreationDate.AddMinutes(+3) < DateTimeOffset.Now)
+            MessageContent = messageContent;
     }
     /// <summary>
     /// To like the message
