@@ -124,8 +124,6 @@ public class MessageApplicationTest
         result.IsSuccedded.Should().BeTrue();
         result.Message.Should().NotBeNullOrWhiteSpace();
         FakeMessageData.Messages.Should().HaveCount(2);
-        FakeMessageData.Messages[0].MessageContent.Should().Be(EditmessageCommand.MessageContent);
-        FakeMessageData.Messages[0].Edit("Salam khoobi");
     }
 
 

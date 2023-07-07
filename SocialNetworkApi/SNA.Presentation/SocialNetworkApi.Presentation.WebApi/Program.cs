@@ -13,9 +13,9 @@ using SocialNetworkApi.Presentation.WebApi.Tools;
 
 // Add services to the container.
 var builder = WebApplication.CreateBuilder(args);
-//string connectionString = builder.Configuration.GetConnectionString("socialNetworkApiConnectionStringHome");
-string connectionString = builder.Configuration.GetConnectionString("socialNetworkApiConnectionStringNoc");
-Configuration.Configure(builder.Services,connectionString);
+string connectionString = builder.Configuration.GetConnectionString("socialNetworkApiConnectionStringHome");
+//string connectionString = builder.Configuration.GetConnectionString("socialNetworkApiConnectionStringNoc");
+Configuration.Configure(builder.Services, connectionString);
 
 //wire up and register the needed services
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
@@ -71,7 +71,7 @@ builder.Services.AddAuthentication(configOpt =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(swgGenOpt =>
 {
-    swgGenOpt.SwaggerDoc("v1",new OpenApiInfo
+    swgGenOpt.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "Social Network Api V1",
         Description = "This is an api to work with social network operations...",
@@ -79,7 +79,7 @@ builder.Services.AddSwaggerGen(swgGenOpt =>
     });
     var xmlDoc = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     swgGenOpt.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlDoc));
-    swgGenOpt.AddSecurityDefinition("Bearer",new OpenApiSecurityScheme
+    swgGenOpt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Type = SecuritySchemeType.ApiKey,
         In = ParameterLocation.Header,
